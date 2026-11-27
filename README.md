@@ -1,5 +1,11 @@
 # 프로젝트 작업 기록 에이전트
 
+## 프로젝트 소개 보고서
+
+[**프로젝트 전체 소개 · 필요성, 모든 기능, 이용 사례, 설문조사**](https://jwoo-park.github.io/agentic-ai-challenge/) (GitHub Pages)
+
+처음 보는 분은 소개 보고서부터 읽어 주세요. 외부 공개 조사와 자체 사용자 피드백 문항을 구분했으며, 실제 응답은 자동 수집하지 않습니다. [HTML 원본](index.html)
+
 ## 데모 페이지
 
 - [**V5 데모 페이지 열기**](https://jwoo-park.github.io/agentic-ai-challenge/docs/v5/previews/project-home-preview.html) (GitHub Pages 배포 활성화 후 이용 가능)
