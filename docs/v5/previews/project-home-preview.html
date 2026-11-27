@@ -1,0 +1,2173 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>프로젝트 기록 · V5 미리보기</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1e2e27;
+      --muted: #56645d;
+      --accent: #164832;
+      --soft: #eaf2ec;
+      --line: #dce4dd;
+      --paper: #fff;
+      --canvas: #f5f7f3;
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--canvas);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; word-break: keep-all; overflow-wrap: anywhere; }
+    [hidden] { display: none !important; }
+    h1, h2, h3, p, dl, dd { margin: 0; }
+    h1, h2, h3 { letter-spacing: -.045em; }
+    p { line-height: 1.6; }
+    a { color: var(--accent); }
+    button { font: inherit; }
+    :focus-visible { outline: 2px solid #377e5e; outline-offset: 4px; }
+    .top { background: var(--paper); border-bottom: 1px solid var(--line); }
+    .top > div {
+      width: min(1080px, calc(100% - 48px)); min-height: 62px; margin: auto;
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    }
+    .brand { font-size: .96rem; font-weight: 750; color: var(--ink); text-decoration: none; }
+    .workspace, .quiet { color: var(--muted); font-size: .85rem; }
+    main { width: min(1080px, calc(100% - 48px)); margin: 42px auto 56px; }
+    .profile {
+      display: grid; grid-template-columns: 1.5fr 1fr; border: 1px solid #d8e4d9;
+      background: var(--paper); border-radius: 18px; overflow: hidden;
+    }
+    .profile > div { padding: clamp(22px, 3vw, 32px); }
+    .profile h1 { font-size: clamp(2rem, 4.5vw, 2.75rem); line-height: 1.15; margin-block: 5px 9px; }
+    .profile .summary { max-width: 41ch; font-size: .98rem; color: var(--muted); }
+    .profile .profile-details { background: #edf3eb; }
+    .home-activity {
+      display: grid; grid-template-columns: minmax(230px, 410px) minmax(0, 1fr); gap: 13px 20px; align-items: start;
+      margin-top: 15px; padding: 15px 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper);
+    }
+    .home-activity h2 { margin-bottom: 4px; font-size: 1.08rem; }
+    .home-activity .activity { margin: 7px 0 0; }
+    .home-activity-note { min-width: 0; border-left: 1px solid var(--line); padding: 4px 0 4px 15px; }
+    .home-activity-note h3 { margin-bottom: 7px; font-size: .92rem; }
+    dl { display: grid; grid-template-columns: auto 1fr; gap: 14px 20px; align-content: center; }
+    dt { color: var(--muted); font-size: .88rem; }
+    dd { font-weight: 600; font-size: .92rem; }
+    .section-heading { margin: 30px 0 17px; }
+    .section-heading h2 { font-size: 1.55rem; }
+    .folded-projects { margin-top: 16px; }
+    .folded-projects summary, .completed-stages > summary { cursor: pointer; color: var(--muted); font-size: .88rem; font-weight: 650; }
+    .folded-projects .projects { margin-top: 12px; }
+    .idea-list { display: grid; gap: 7px; }
+    .idea-row {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+      padding: 11px 13px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper);
+    }
+    .idea-row h3 { font-size: .98rem; }
+    .idea-row p { color: var(--muted); font-size: .88rem; white-space: pre-wrap; }
+    .idea-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .idea-status { margin-top: 7px; }
+    .idea-form { display: grid; gap: 9px; padding: 16px 21px 20px; }
+    .idea-form input, .idea-form textarea, .idea-form select {
+      width: 100%; padding: 8px 9px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); font: inherit;
+    }
+    .idea-form textarea { min-height: 74px; resize: vertical; }
+    .idea-form .button { justify-self: start; }
+    .idea-form .form-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+    .preset-preview { display: grid; gap: 8px; margin-top: 5px; padding-top: 11px; border-top: 1px solid var(--line); }
+    .preset-preview pre {
+      margin: 0; padding: 9px; background: var(--soft); border-radius: 6px;
+      font: inherit; font-size: .9rem; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere;
+    }
+    .preset-preview .button:disabled { opacity: .45; cursor: default; }
+    .library-header { margin-bottom: 15px; }
+    .library-header h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); }
+    .library-tabs { display: flex; flex-wrap: wrap; gap: 7px; margin: 14px 0; }
+    .preset-columns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .preset-block { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px; border: 1px solid var(--line); border-radius: 9px; background: var(--paper); }
+    .preset-block h2 { font-size: 1.02rem; }
+    .persona-list { display: grid; width: 100%; gap: 7px; }
+    .evaluation-comparison { grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
+    .persona-card { padding: 9px; background: var(--soft); border-radius: 7px; }
+    .persona-title { display: flex; align-items: baseline; justify-content: space-between; gap: 5px; }
+    .persona-card p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; margin: 5px 0 8px; }
+    .evaluation-result { margin-top: 8px; padding: 9px; border-top: 1px solid var(--line); }
+    .evaluation-result p { display: block; overflow: visible; white-space: pre-wrap; }
+    #evaluation-dialog { width: min(800px, calc(100% - 28px)); }
+    #evaluation-running { display: grid; gap: 10px; }
+    @media (max-width: 740px) { .preset-columns { grid-template-columns: 1fr; } }
+    .plan-inputs { display: grid; gap: 8px; }
+    .plan-input { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) auto; gap: 7px; align-items: end; }
+    .plan-input label { display: grid; gap: 4px; min-width: 0; }
+    .plan-goal { margin-bottom: 10px; }
+    .plan-goal button { margin-top: 7px; }
+    .plan-input:only-child > button { visibility: hidden; }
+    .stage-condition-note { margin: 0 3px 7px; }
+    #link-form { padding: 10px 0 0; grid-template-columns: 1fr; }
+    #link-status { margin: 0 0 8px; }
+    .source-link.unconfirmed { color: #80531e; }
+    .tag-filter {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 10px 12px; margin-bottom: 16px; border: 1px solid var(--line);
+      border-radius: 9px; background: var(--paper);
+    }
+    .tag-filter p { font-size: .9rem; }
+    .projects { --columns: 3; display: grid; grid-template-columns: repeat(var(--columns), minmax(0, 1fr)); gap: 22px 15px; }
+    .project-group, .tag-group { min-width: 0; grid-column: span min(var(--span), var(--columns)); }
+    .project-group { display: grid; grid-template-rows: auto 1fr; }
+    .project-group h3 { margin-bottom: 8px; font-size: .88rem; font-weight: 700; color: var(--muted); }
+    .project-buckets, .tag-cards {
+      display: grid; grid-template-columns: repeat(min(var(--span), var(--columns)), minmax(0, 1fr)); gap: 12px;
+    }
+    .tag-group { display: flex; flex-direction: column; gap: 7px; }
+    .tag-cards { flex: 1; }
+    .tag-group.shared { padding: 9px; border: 1px solid #d6e4d9; border-radius: 13px; background: #edf3eb; }
+    .tag-group-title { align-self: flex-start; padding-inline: 3px; color: var(--accent); font-size: .80rem; font-weight: 650; }
+    .project-card {
+      min-width: 0; min-height: 183px; background: var(--paper); padding: 17px;
+      position: relative; color: var(--ink); border: 1px solid var(--line); border-radius: 13px;
+      display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+    }
+    .project-card:hover, .project-card:focus-within { border-color: #81a590; background: #fcfefc; }
+    .project-card h4 { margin: 0; font-size: 1.11rem; letter-spacing: -.035em; overflow-wrap: anywhere; }
+    .project-title-link { color: inherit; text-decoration: none; }
+    .project-title-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+    .project-card p { color: var(--muted); font-size: .90rem; }
+    .project-card footer {
+      width: 100%; border-top: 1px solid var(--line); padding-top: 9px;
+      display: flex; flex-wrap: wrap; justify-content: space-between; gap: 5px 12px;
+      font-size: .80rem; color: var(--muted);
+    }
+    .card-metrics { width: 100%; margin: auto 0 2px; padding-top: 3px; }
+    .card-timing, .progress-label {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 3px 8px; flex-wrap: wrap;
+      font-size: .81rem; font-variant-numeric: tabular-nums;
+    }
+    .card-timing .remaining { color: var(--accent); font-weight: 650; }
+    .progress-label { margin-top: 7px; color: var(--muted); }
+    .progress-label strong { color: var(--ink); }
+    .card-metrics progress {
+      display: block; width: 100%; height: 5px; margin-top: 4px; appearance: none; border: 0;
+      border-radius: 9px; overflow: hidden; background: #e9eee9; accent-color: #377b59;
+    }
+    .card-metrics progress::-webkit-progress-bar { background: #e9eee9; }
+    .card-metrics progress::-webkit-progress-value { background: #377b59; border-radius: 9px; }
+    .card-metrics progress::-moz-progress-bar { background: #377b59; border-radius: 9px; }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 5px; max-width: 100%; }
+    .tag { display: inline-flex; align-items: center; gap: 5px; min-width: 0; border-radius: 5px; padding: 2px 6px; color: var(--muted); background: #eef2ed; font-size: .77rem; overflow-wrap: anywhere; }
+    .tag-button {
+      position: relative; z-index: 1; border: 1px solid transparent; cursor: pointer; text-align: left;
+    }
+    .tag-button:hover, .tag-button[aria-pressed="true"] { border-color: #86a893; color: var(--accent); background: var(--soft); }
+    .status { color: var(--accent); background: var(--soft); padding: 3px 9px; border-radius: 6px; font-size: .78rem; font-weight: 700; }
+    .status.complete { color: #4c5b52; background: #eef1ed; }
+    .detail-header { padding-bottom: 17px; }
+    .breadcrumb { display: inline-block; margin-bottom: 13px; font-size: .88rem; text-decoration-color: #a9beb0; text-underline-offset: 3px; }
+    .project-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px 14px; }
+    .detail-header h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); margin-bottom: 7px; }
+    .detail-card { background: var(--paper); border: 1px solid var(--line); border-radius: 13px; padding: clamp(16px, 2.8vw, 24px); }
+    .detail-card + .detail-card { margin-top: 13px; }
+    .major-title { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; cursor: pointer; list-style: none; }
+    .major-title::-webkit-details-marker { display: none; }
+    .major-title h2 { flex: 1; font-size: 1.18rem; }
+    .major-title::after { content: ""; width: 6px; height: 6px; margin: 0 4px; flex-shrink: 0; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: rotate(45deg); }
+    details[open] > .major-title::after { transform: rotate(225deg); }
+    .major-body { margin-top: 15px; }
+    .activity {
+      --cell: 18px; --gap: 5px;
+      width: min(100%, 450px); display: grid;
+      gap: 4px; margin: 0 0 15px; color: var(--muted);
+    }
+    .activity-picker { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+    .activity-picker strong { font-size: .84rem; font-variant-numeric: tabular-nums; color: var(--ink); }
+    .activity-picker button { width: 28px; height: 27px; padding: 0; border: 1px solid var(--line); border-radius: 6px; color: var(--accent); background: var(--paper); cursor: pointer; }
+    .activity-picker button:disabled { opacity: .38; cursor: default; }
+    .activity-picker button:not(:disabled):hover { background: var(--soft); }
+    .activity-days, .activity-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--gap); }
+    .activity-days { text-align: center; font-size: .75rem; }
+    .activity-grid { grid-auto-rows: var(--cell); }
+    .activity-cell { display: block; width: 100%; height: var(--cell); border: 0; border-radius: 4px; padding: 0; background: #edf1eb; }
+    button.activity-cell { cursor: pointer; }
+    button.activity-cell:hover { outline: 1px solid #3e7658; outline-offset: 1px; }
+    .activity-cell[data-level="1"], .activity-legend i[data-level="1"] { background: #599477; }
+    .home-activity [data-level]:not([data-level="0"]) {
+      background: color-mix(in srgb, #245d40 min(100%, calc(12% + var(--level) * 14%)), #e1ebe0);
+    }
+    .activity-cell[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .activity-cell.future { background: transparent; }
+    .activity-legend { display: flex; justify-content: flex-end; align-items: center; gap: 4px; margin-top: 4px; font-size: .73rem; }
+    .activity-legend i { width: 10px; height: 10px; border-radius: 2px; background: #edf1eb; }
+    .log-day + .log-day { margin-top: 12px; }
+    .log-day h3 { border-bottom: 1px solid var(--line); padding: 5px 0 6px; color: var(--muted); font-size: .86rem; }
+    .log-line { padding: 8px 0; display: grid; grid-template-columns: minmax(155px, .65fr) minmax(0, 1.5fr); align-items: baseline; gap: 4px 13px; }
+    .log-line + .log-line { border-top: 1px solid #eef2ec; }
+    .log-line h4 { margin: 0; font-size: .93rem; }
+    .log-line p { display: inline; font-size: .88rem; color: var(--muted); }
+    .log-line .source-links { display: inline-flex; margin-inline-start: 8px; }
+    .source-links { display: flex; flex-wrap: wrap; gap: 4px 10px; }
+    .source-link { border: 0; background: none; padding: 2px 0; color: var(--accent); font: inherit; font-size: .82rem; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+    .source-link:hover { color: #2f7652; }
+    .plan-group + .plan-group { margin-top: 15px; }
+    .plan-group h3 { margin-bottom: 5px; color: var(--muted); font-size: .88rem; }
+    .completed-stages { padding-top: 3px; }
+    .completed-stages .plan-stages { margin-top: 5px; }
+    .plan-stages { margin: 0; padding: 0; list-style: none; }
+    .plan-stages > li { border-bottom: 1px solid var(--line); font-size: .9rem; }
+    .plan-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 3px; }
+    .plan-line.current { padding-inline: 8px; border-radius: 7px; background: #ebf2e9; }
+    .plan-stages summary { cursor: pointer; }
+    .plan-stages summary::-webkit-details-marker { display: none; }
+    .plan-stages summary .stage-label::before { content: "▸"; margin-right: 6px; color: var(--accent); }
+    .plan-stages details[open] summary .stage-label::before { content: "▾"; }
+    .stage-body { padding: 0 3px 9px 15px; }
+    .stage-body p { font-size: .9rem; }
+    .stage-body .stage-checks { margin-top: 7px; }
+    .stage-checks { list-style: none; margin: 0; padding: 0; }
+    .stage-checks li { display: flex; align-items: center; justify-content: space-between; gap: 5px 8px; padding-block: 4px; font-size: .86rem; }
+    .plan-stages .status { flex-shrink: 0; }
+    .plan-stages [aria-current="step"] { font-weight: 700; }
+    .record-section { padding-block: 12px; border-bottom: 1px solid var(--line); }
+    .record-section:last-child { border-bottom: 0; }
+    .record-section h4 { margin: 0 0 6px; font-size: 1rem; }
+    .record-entry + .record-entry { margin-top: 9px; }
+    .record-entry h5 { margin: 0 0 3px; font-size: .92rem; }
+    .record-entry p, .record-section > p { font-size: .91rem; }
+    .difficulty { margin-top: 6px; padding: 10px 12px; border-left: 3px solid #659779; background: #f3f7f1; }
+    .difficulty p + p { margin-top: 4px; }
+    .record-entry .source-links { margin-top: 4px; }
+    #tag-dialog { width: min(460px, calc(100% - 28px)); }
+    .tag-editor { padding: 18px 22px; }
+    .tag-editor .tag { font-size: .85rem; padding-inline: 8px; }
+    .tag-editor form { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .tag-editor input { min-width: 0; width: min(210px, 100%); min-height: 38px; padding: 7px 9px; border: 1px solid #cad8cf; border-radius: 7px; font: inherit; background: var(--paper); color: var(--ink); }
+    .remove-tag { min-width: 28px; min-height: 28px; border: 0; border-radius: 4px; color: var(--accent); background: transparent; cursor: pointer; }
+    .remove-tag:hover { background: #dce7de; }
+    #report-dialog { width: min(880px, calc(100% - 24px)); }
+    #report-dialog > header { position: sticky; top: 0; background: var(--paper); z-index: 1; }
+    .portfolio-page { padding: clamp(19px, 4vw, 40px); }
+    .portfolio-page h3 { margin: 5px 0 9px; font-size: clamp(1.65rem, 4.4vw, 2.75rem); }
+    .portfolio-lead { color: var(--muted); max-width: 63ch; }
+    .portfolio-page section { padding-block: 14px; border-top: 1px solid var(--line); border-bottom: 0; }
+    .portfolio-page section:first-of-type { margin-top: 22px; }
+    .portfolio-page h4 { margin: 0 0 5px; font-size: 1.06rem; }
+    .portfolio-page figure { margin: 12px 0; }
+    .portfolio-page figure img { display: block; width: 100%; border: 1px solid var(--line); border-radius: 8px; }
+    .portfolio-page figcaption { margin-top: 5px; }
+    @media (max-width: 570px) {
+      .log-line { grid-template-columns: 1fr; }
+      .log-line .source-links { display: flex; margin: 4px 0 0; }
+      .home-activity { grid-template-columns: 1fr; }
+      .home-activity-note { border-left: 0; border-top: 1px solid var(--line); padding: 10px 0 0; }
+      .plan-input { grid-template-columns: 1fr; border-bottom: 1px solid var(--line); padding-bottom: 7px; }
+    }
+    .actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .button { min-height: 38px; border: 1px solid #cad8cf; border-radius: 7px; padding: 7px 11px; background: var(--paper); color: var(--accent); font-weight: 650; font-size: .86rem; cursor: pointer; }
+    .button:hover { background: var(--soft); }
+    .button.primary { color: #fff; background: var(--accent); border-color: var(--accent); }
+    .button.primary:hover { background: #205d42; }
+    dialog { width: min(680px, calc(100% - 28px)); max-height: calc(100vh - 30px); padding: 0; border: 1px solid #cad8cf; border-radius: 16px; color: var(--ink); background: var(--paper); box-shadow: 0 16px 60px #142b222b; }
+    dialog::backdrop { background: #142a2255; }
+    .dialog-top { border-bottom: 1px solid var(--line); padding: 17px 22px; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .dialog-top h2 { margin-bottom: 4px; font-size: 1.35rem; }
+    .dialog-top p { overflow-wrap: anywhere; }
+    .document { padding: 23px 22px; }
+    .document h3 { margin-bottom: 11px; font-size: 1.07rem; }
+    .document-note { margin-bottom: 11px; }
+    .document-line { margin-bottom: 16px; padding: 13px 14px; border-radius: 5px; background: #f2f6f0; border-left: 3px solid #659876; }
+    .document-line::selection { background: #c2e5d5; }
+    .document-image { display: block; max-width: 100%; height: auto; margin-bottom: 13px; border: 1px solid var(--line); border-radius: 7px; }
+    .copy-status { font-size: .87rem; min-height: 1.5em; color: var(--accent); }
+    .copy-text { display: block; width: 100%; min-height: 80px; font: inherit; background: #f8faf7; color: var(--ink); border: 1px solid var(--line); border-radius: 7px; padding: 9px; margin-top: 9px; }
+    .page-note { margin-top: 26px; color: var(--muted); font-size: .8rem; }
+    @media (max-width: 800px) { .projects { --columns: 2; } }
+    @media (max-width: 570px) {
+      .top > div, main { width: calc(100% - 28px); }
+      main { margin-top: 22px; }
+      .profile { grid-template-columns: 1fr; }
+      .projects { --columns: 1; }
+      .profile > div { padding: 20px; }
+      .project-card { min-height: 176px; padding: 18px; }
+      .section-heading { margin-top: 29px; }
+    }
+    @media (pointer: coarse) { .tag-button { min-height: 32px; } }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div><a class="brand" href="#home">프로젝트 기록</a><a class="button" id="open-preset-library" href="#presets">AI 프리셋 관리</a></div>
+  </header>
+  <main>
+    <section id="home" aria-label="내 작업 공간">
+      <header class="profile">
+        <div>
+          <span class="quiet">내 프로필</span>
+          <h1>김민서</h1>
+          <p class="summary">기술 아이디어를 실제로 써볼 수 있는 웹 시안으로 만들고, 과정과 결과를 기록합니다.</p>
+        </div>
+        <div class="profile-details">
+          <dl>
+            <dt>소속</dt><dd>컴퓨터공학 전공 · 학부생</dd>
+            <dt>관심 분야</dt><dd>AI 제품 기획 · 웹 프로토타입</dd>
+            <dt>현재 목표</dt><dd>공모전 기획안과 데모 완성</dd>
+          </dl>
+        </div>
+      </header>
+      <section class="home-activity" aria-labelledby="home-activity-title">
+        <div>
+          <h2 id="home-activity-title">작업 활동</h2>
+          <p class="quiet">날짜별 작업 프로젝트 수</p>
+          <div id="home-activity-grid"></div>
+        </div>
+        <div class="home-activity-note">
+          <h3 id="home-activity-day"></h3>
+          <div class="source-links" id="home-activity-projects"></div>
+        </div>
+      </section>
+      <section aria-labelledby="projects-title">
+        <div class="section-heading"><h2 id="projects-title" tabindex="-1">프로젝트</h2></div>
+        <div class="tag-filter" id="tag-filter" hidden>
+          <p id="tag-filter-status" role="status" tabindex="-1"></p>
+          <button type="button" class="button" id="clear-tag-filter">전체 보기</button>
+        </div>
+        <p class="quiet" id="tag-filter-empty" hidden>이 태그가 붙은 프로젝트가 없어요.</p>
+        <div class="projects" id="project-groups"></div>
+        <details class="folded-projects" id="completed-projects" hidden>
+          <summary id="completed-projects-label">완료한 프로젝트</summary>
+          <div class="projects" id="completed-project-groups"></div>
+        </details>
+      </section>
+      <section aria-labelledby="ideas-title">
+        <div class="section-heading idea-heading">
+          <h2 id="ideas-title">하고 싶은 일</h2>
+          <button type="button" class="button" id="add-idea">메모 추가</button>
+        </div>
+        <div class="idea-list" id="idea-list"></div>
+        <p class="quiet idea-status" id="idea-status" role="status"></p>
+      </section>
+      <p class="page-note">V5 프로토타입 · 예시 기준 <time id="preview-date"></time></p>
+    </section>
+    <section id="presets-page" aria-labelledby="preset-page-title" hidden>
+      <header class="library-header">
+        <a class="breadcrumb" id="preset-back" href="#home">내 프로젝트</a>
+        <div class="project-heading">
+          <h1 id="preset-page-title" tabindex="-1">AI 프리셋</h1>
+          <button type="button" class="button primary" id="add-preset">AI 설정 요청</button>
+        </div>
+        <nav class="library-tabs" id="preset-tabs" aria-label="프리셋 목록"></nav>
+        <p class="quiet" id="preset-usage"></p>
+      </header>
+      <div class="preset-columns" id="preset-blocks"></div>
+      <p class="quiet idea-status" id="preset-status" role="status"></p>
+    </section>
+    <section id="project" aria-labelledby="project-title" hidden>
+      <header class="detail-header">
+        <a class="breadcrumb" href="#home">내 프로젝트</a>
+        <div class="project-heading">
+          <div><h1 id="project-title" tabindex="-1"></h1><p class="quiet" id="project-meta"></p></div>
+          <div class="actions">
+            <button type="button" class="button" id="open-tags">태그 편집</button>
+            <button type="button" class="button" id="open-prompts">AI 프리셋 연결</button>
+            <button type="button" class="button" id="open-evaluation" hidden>독립 평가</button>
+            <button type="button" class="button primary" id="open-report">산출물</button>
+          </div>
+        </div>
+      </header>
+      <details class="detail-card" id="log-section">
+        <summary class="major-title"><h2>작업 로그</h2><span class="quiet" id="log-count"></span></summary>
+        <div class="major-body">
+          <div id="project-activity-grid"></div>
+          <div id="project-log"></div>
+        </div>
+      </details>
+      <details class="detail-card" id="progress-section" open>
+        <summary class="major-title"><h2>진행</h2><span class="quiet" id="plan-progress"></span></summary>
+        <div class="major-body" id="tasks"></div>
+      </details>
+    </section>
+  </main>
+  <dialog id="document-dialog" aria-labelledby="document-title">
+    <header class="dialog-top">
+      <div><h2 id="document-title"></h2><p class="quiet" id="document-path"></p></div>
+      <button type="button" class="button" id="close-document">닫기</button>
+    </header>
+    <section class="document" aria-labelledby="document-section">
+      <h3 id="document-section"></h3>
+      <p class="document-note quiet" id="document-note" hidden></p>
+      <p id="document-line" class="document-line"></p>
+      <img class="document-image" id="document-image" alt="" hidden>
+      <p class="quiet" id="link-status" hidden></p>
+      <div class="actions">
+        <button type="button" class="button primary" id="copy-position">위치 복사</button>
+        <button type="button" class="button" id="copy-path">파일 경로만 복사</button>
+        <a class="button" id="document-preview-link" hidden></a>
+        <button type="button" class="button" id="open-link-form" hidden>연결 정정</button>
+        <button type="button" class="button" id="confirm-link" hidden>연결 확인</button>
+      </div>
+      <form class="idea-form" id="link-form" hidden>
+        <label for="link-choice">연결할 자료</label><select id="link-choice"></select>
+        <button type="submit" class="button">이 자료로 연결</button>
+      </form>
+      <div id="copy-result">
+        <p id="copy-status" class="copy-status" role="status"></p>
+        <textarea id="manual-copy" class="copy-text" aria-label="복사할 위치" readonly hidden></textarea>
+      </div>
+    </section>
+  </dialog>
+  <dialog id="report-dialog" aria-labelledby="report-title">
+    <header class="dialog-top">
+      <div><h2 id="report-title">포트폴리오 미리보기</h2><p class="quiet">공개 페이지에서 보이는 형식</p></div>
+      <button type="button" class="button" id="close-report">닫기</button>
+    </header>
+    <article class="portfolio-page" id="report-body"></article>
+  </dialog>
+  <dialog id="tag-dialog" aria-labelledby="tag-dialog-title">
+    <header class="dialog-top">
+      <h2 id="tag-dialog-title">태그 편집</h2>
+      <button type="button" class="button" id="close-tags">닫기</button>
+    </header>
+    <div class="tag-editor">
+      <div id="editable-tags" class="tag-list"></div>
+      <form id="tag-form">
+        <label class="quiet" for="tag-name">새 태그</label>
+        <input id="tag-name" type="text" autocomplete="off" required>
+        <button type="submit" class="button">추가</button>
+      </form>
+      <p id="tag-status" class="quiet" role="status"></p>
+    </div>
+  </dialog>
+  <dialog id="idea-dialog" aria-labelledby="idea-dialog-title">
+    <header class="dialog-top">
+      <h2 id="idea-dialog-title"></h2>
+      <button type="button" class="button" id="close-idea-dialog">닫기</button>
+    </header>
+    <form class="idea-form" id="idea-form">
+      <label for="idea-name">제목</label><input type="text" id="idea-name" required>
+      <label for="idea-text">메모</label><textarea id="idea-text"></textarea>
+      <button type="submit" class="button primary">저장</button>
+    </form>
+    <form class="idea-form" id="promote-idea-form" hidden>
+      <p id="promote-idea-name"></p>
+      <label for="idea-category">프로젝트 유형</label><select id="idea-category"></select>
+      <button type="submit" class="button primary">프로젝트로 전환</button>
+    </form>
+  </dialog>
+  <dialog id="plan-dialog" aria-labelledby="plan-dialog-title">
+    <header class="dialog-top">
+      <h2 id="plan-dialog-title">프로젝트 계획</h2>
+      <button type="button" class="button" id="close-plan">닫기</button>
+    </header>
+    <form class="idea-form" id="plan-form">
+      <label for="plan-goal">목표</label><textarea id="plan-goal" required></textarea>
+      <label for="plan-target">목표일</label><input type="date" id="plan-target">
+      <div class="plan-inputs" id="plan-inputs"></div>
+      <div class="form-actions">
+        <button type="button" class="button" id="add-plan-stage">단계 추가</button>
+        <button type="submit" class="button primary">계획 저장</button>
+      </div>
+    </form>
+  </dialog>
+  <dialog id="prompt-dialog" aria-labelledby="prompt-dialog-title">
+    <header class="dialog-top">
+      <div><h2 id="prompt-dialog-title">저장된 AI 설정</h2><p class="quiet" id="persona-context"></p></div>
+      <button type="button" class="button" id="close-prompts">닫기</button>
+    </header>
+    <div class="idea-form">
+      <p class="quiet" id="persona-model"></p>
+      <div class="preset-preview"><strong>프롬프트</strong><pre id="prompt-text"></pre></div>
+    </div>
+  </dialog>
+  <dialog id="preset-name-dialog" aria-labelledby="preset-name-title">
+    <header class="dialog-top"><h2 id="preset-name-title">AI 설정 요청</h2><button type="button" class="button" id="close-preset-name">닫기</button></header>
+    <form class="idea-form" id="preset-name-form">
+      <p class="quiet" id="preset-request-base"></p>
+      <label for="preset-request">필요한 작업이나 평가 방향</label><textarea id="preset-request" required placeholder="예: 기획안의 문제 정의와 시연 검증 계획을 중심으로 봐줘."></textarea>
+      <button type="submit" class="button primary">설정 예시 만들기</button>
+    </form>
+  </dialog>
+  <dialog id="preset-link-dialog" aria-labelledby="preset-link-title">
+    <header class="dialog-top">
+      <div><h2 id="preset-link-title">AI 프리셋 연결</h2><p class="quiet" id="linked-project"></p></div>
+      <button type="button" class="button" id="close-preset-link">닫기</button>
+    </header>
+    <form class="idea-form" id="preset-link-form">
+      <label for="project-preset">이 프로젝트의 프리셋</label><select id="project-preset"></select>
+      <div class="form-actions">
+        <button type="submit" class="button primary">연결 저장</button>
+        <button type="button" class="button" id="manage-presets-from-project">프리셋 관리</button>
+      </div>
+      <div class="preset-preview" id="linked-preset-preview" hidden>
+        <label for="linked-preset-role">역할</label>
+        <select id="linked-preset-role">
+          <option value="progress">진행</option><option value="evaluation">독립 평가</option><option value="review">검수</option>
+        </select>
+        <label for="linked-persona">페르소나</label><select id="linked-persona"></select>
+        <p class="quiet" id="linked-model" hidden></p>
+        <pre id="linked-prompt-text"></pre>
+        <div class="form-actions">
+          <button type="button" class="button" id="copy-prompt">프롬프트 복사</button>
+        </div>
+      </div>
+      <p class="quiet" id="preset-link-status" role="status"></p>
+      <textarea id="prompt-manual-copy" aria-label="복사할 프롬프트" readonly hidden></textarea>
+    </form>
+  </dialog>
+  <dialog id="evaluation-dialog" aria-labelledby="evaluation-title">
+    <header class="dialog-top">
+      <div><h2 id="evaluation-title">독립 평가</h2><p class="quiet" id="evaluation-project"></p></div>
+      <button type="button" class="button" id="close-evaluation">닫기</button>
+    </header>
+    <div class="idea-form">
+      <div id="evaluation-history" hidden><label for="evaluation-run">평가 기록</label><select id="evaluation-run"></select></div>
+      <form class="idea-form" style="padding:0" id="evaluation-start">
+        <p class="quiet">예시 평가 · 별도 세션에서 결과가 모이는 흐름을 체험할 수 있어요.</p>
+        <label for="submission-version">제출본 버전</label><input id="submission-version" placeholder="예: v5">
+        <label for="evaluation-submission">공통 제출본</label><textarea id="evaluation-submission" required></textarea>
+        <label for="evaluation-criteria">공통 평가 기준</label><textarea id="evaluation-criteria" required></textarea>
+        <div class="form-actions">
+          <button type="submit" class="button primary" id="start-evaluation-run">자동 평가 시작</button>
+          <button type="button" class="button" id="load-evaluation-example">예시 불러오기</button>
+        </div>
+      </form>
+      <div id="evaluation-running" hidden>
+        <p class="quiet" id="evaluation-progress" aria-live="polite"></p>
+        <div class="persona-list" id="evaluation-personas"></div>
+        <button type="button" class="button" id="new-evaluation">새 제출본 평가</button>
+      </div>
+      <p class="quiet" id="evaluation-status" role="status"></p>
+    </div>
+  </dialog>
+  <template id="project-card-template">
+    <article class="project-card">
+      <span class="status"></span>
+      <h4><a class="project-title-link"></a></h4>
+      <p></p>
+      <div class="tag-list"></div>
+      <div class="card-metrics">
+        <div class="card-timing"><span class="elapsed"></span><span class="remaining"></span></div>
+        <div class="progress-label"><span>완료율</span><strong></strong></div>
+        <progress max="100" aria-label="완료율"></progress>
+      </div>
+      <footer><span></span><span></span></footer>
+    </article>
+  </template>
+  <template id="activity-template">
+    <div class="activity" role="group">
+      <div class="activity-picker">
+        <button type="button" class="previous-month" aria-label="이전 달">‹</button>
+        <strong class="activity-month" aria-live="polite"></strong>
+        <button type="button" class="next-month" aria-label="다음 달">›</button>
+      </div>
+      <div class="activity-days" aria-hidden="true"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
+      <div class="activity-grid"></div>
+      <div class="activity-legend"></div>
+    </div>
+  </template>
+  <script>
+    const previewDate = "2026-11-28";
+    const categories = {
+      contest: "대회",
+      scholarship: "장학금",
+      lab: "연구실",
+      course: "수업",
+      personal: "개인 프로젝트",
+      campus: "교내 활동",
+      career: "취업 준비"
+    };
+    const projects = {
+      contest: {
+        category: "contest",
+        title: "창업대회 준비",
+        role: "기획 · 프로토타입",
+        startDate: "2026-11-14",
+        targetDate: "2026-12-11",
+        summary: "발표 기획과 HTML 시연을 준비하고 있어요.",
+        tags: ["발표 준비", "팀 프로젝트"],
+        document: {
+          name: "발표 초안", path: "발표자료/발표초안.md", section: "시연 계획", line: "현장에서 영상을 재생합니다.",
+          note: "11월 27일에 현장 시연을 HTML로 변경했어요. 아래 문장은 바뀐 결정을 반영해야 해요."
+        },
+        tasks: [["기획안 확정", "완료"], ["HTML 시연 준비", "진행 중"], ["발표 자료 완성", "예정"], ["리허설과 제출", "예정"]],
+        stageDetails: {
+          "기획안 확정": {
+            completedOn: "2026-11-26",
+            body: "11월 26일에 문제를 ‘시연 방식 변경이 계획과 자료에 따로 반영되는 상황’으로 좁혔어요. 기획안에 사용자 요청, 에이전트가 확인할 자료, 완료 판단 기준을 담고 ‘변경 전 → 첫 반영 → 재검증’ 시연 흐름을 확정했어요.",
+            checks: [["이용자와 문제 상황 정의", "완료"], ["작업 범위와 원본 근거 확정", "완료"], ["대표 시연과 검증 기준 확정", "완료"]],
+            files: ["proposal"], recordPhase: "plan"
+          },
+          "HTML 시연 준비": {
+            checks: [["산출물·진행·로그 화면 이동", "확인 완료"], ["공고의 별도 영상 요건 대조", "확인 완료"], ["자료를 열 수 없는 예외 화면 리허설", "확인 중"]],
+            recordPhase: "work"
+          },
+          "발표 자료 완성": { body: "시연 화면 캡처는 확보했어요. 영상에서 HTML로 바꾼 이유를 초안에 반영하고 최종 발표 PDF를 만들어요.", files: ["draft", "capture"] },
+          "리허설과 제출": { body: "HTML로 기본·예외 흐름을 리허설하고, 공고에 따른 심사용 영상은 별도 파일로 준비해 제출해요.", files: ["notice"] }
+        },
+        progress: {
+          summary: "현장 시연을 HTML로 바꿨고, 산출물·진행·로그에서 기본 이동을 확인했어요.",
+          strengths: [
+            "시연용 화면을 직접 클릭해 볼 수 있어 발표 순서를 리허설할 수 있어요.",
+            "현장 시연과 심사용 제출 영상의 조건을 구분했어요. 시연 방식을 바꾼 뒤에도 별도 영상 제출 작업은 일정에 남아 있어요."
+          ],
+          next: "자료가 누락됐을 때의 재검증 화면을 점검하고, 발표 초안에 남아 있는 영상 재생 문장을 수정해요.",
+          files: ["demo", "draft"]
+        },
+        workspace: {
+          materials: {
+            proposal: {
+              name: "공모전 기획안", path: "기획/공모전-기획안-v3.md", section: "문제와 목표",
+              line: "프로젝트에서 바뀐 결정을 기록하면 관련 계획과 산출물을 갱신하고, 변경 근거를 함께 남깁니다."
+            },
+            demo: {
+              name: "현장 시연 HTML", path: "시안/현장시연.html", section: "시연 범위",
+              line: "산출물, 진행, 작업 로그의 연결은 확인했습니다. 예외 화면을 포함한 리허설이 남았습니다.",
+              preview: "project-workflow-layers.html", previewLabel: "HTML 시안 열기"
+            },
+            capture: {
+              name: "시연 화면 캡처", path: "발표자료/이미지/시연-화면.png", section: "발표 자료",
+              line: "진행 단계의 준비 항목과 연결된 자료가 같은 프로젝트 창에 표시되는 장면입니다.",
+              image: "../../v4/screenshots/project-workflow-preparation.png"
+            },
+            notice: {
+              name: "예시 공고", path: "공고/제출요건.pdf", section: "제출 요건",
+              line: "현장 시연 형식은 자유입니다. 심사용 영상 파일은 별도의 필수 제출물입니다.",
+              note: "이 시연에 사용하는 가상의 공고 발췌예요."
+            }
+          }
+        },
+        logs: [
+          { date: "2026-11-27", title: "심사용 영상 작업 복구", description: "공고의 별도 제출 조건을 확인해 누락된 영상 작업을 다시 추가했어요.", files: ["notice"] },
+          { date: "2026-11-27", title: "현장 시연 방식 변경", description: "팀에서 HTML로 시연하기로 했어요. 발표 초안의 영상 재생 문장에 수정 표시를 남겼어요.", files: ["draft"] },
+          { date: "2026-11-27", title: "HTML 기본 화면 연결", description: "산출물·진행·로그 화면 사이 이동을 연결하고 시연 화면을 캡처했어요.", files: ["demo", "capture"] },
+          { date: "2026-11-26", title: "기획안 확정", description: "사용자가 남긴 결정이 계획과 자료에 반영되는 흐름을 시연 범위로 정했어요.", files: ["proposal"] },
+          { date: "2026-11-24", title: "공고 확인", description: "현장 시연 형식과 별도 제출 영상 조건을 확인했어요.", files: ["notice"] },
+          { date: "2026-11-19", title: "시연 흐름 초안", description: "변경 전, 첫 반영, 재검증 후의 세 장면을 정리했어요." },
+          { date: "2026-11-14", title: "프로젝트 시작", description: "12월 11일을 목표로 기획안·시연·발표 자료·리허설의 네 단계를 잡았어요." }
+        ],
+        record: {
+          title: "프로젝트 작업 기록 에이전트",
+          lead: "프로젝트의 결정이 바뀌었을 때, 관련 계획과 자료를 찾아 갱신하고 근거까지 이어서 볼 수 있는 작업 공간을 설계했습니다.",
+          sections: [
+            { title: "문제와 목표", phase: "plan", rows: [
+              ["문제", "공모전 팀이 현장 시연 방식을 바꾸면 리허설, 발표 초안, 제출 요건에 반영됐는지 각각 확인해야 합니다."],
+              ["목표", "결정 한 건이 바꾼 항목과 유지해야 할 조건을 찾고, 진행 화면에서 결과와 원문 근거를 확인할 수 있게 합니다."]
+            ], files: ["proposal"] },
+            { title: "확정한 기획 범위", phase: "plan", rows: [
+              ["대상과 상황", "공모전 발표를 준비하는 팀이 이미 끝난 시연 방식을 중간에 바꾸는 상황으로 범위를 정했습니다."],
+              ["받을 정보", "사용자의 변경 요청, 현재 계획, 지정 폴더에서 관련된 발표 초안과 공고를 읽습니다."],
+              ["에이전트가 맡는 판단", "요청에서 바꾸려는 범위를 확인한 뒤, 같은 표현이 다른 의미로 쓰인 자료와 조건을 구분합니다. 필요하면 기존에 연결되지 않은 파일을 찾아 비교합니다."],
+              ["저장할 결과", "바뀐 완료 조건과 수정 후보, 유지해야 할 제출 항목을 각각 남기고 그 근거에 연결합니다."],
+              ["검증과 예외", "반영한 내용을 요청과 공고 원문에 다시 대조합니다. 공고를 볼 수 없으면 제출 조건은 마지막으로 확인한 상태를 유지하고 이유를 표시합니다."],
+              ["제출용 시연", "같은 변경에서 첫 반영과 재검증 후를 비교하며 리허설, 발표 초안, 제출 작업을 확인하는 시나리오를 확정했습니다."]
+            ] },
+            { title: "단계별 완료 기준", phase: "plan", rows: [
+              ["기획안 확정", "이용 상황, 필요한 원문, 에이전트가 선택할 행동과 결과를 검증할 조건을 기획안으로 합의합니다."],
+              ["시연 준비", "현장 시연에서 화면을 직접 열어 변경 전과 후를 볼 수 있게 구성하고, 예외 입력에서도 결과를 확인합니다."],
+              ["발표 자료 완성", "시연 방식을 바꾼 이유와 변경 시 영향을 받은 항목을 캡처와 함께 설명하고, 최종 발표본을 PDF로 확인합니다."],
+              ["리허설과 제출", "발표 흐름과 예외 화면을 리허설한 뒤 공고의 필수 첨부와 형식을 다시 대조합니다."]
+            ] },
+            { title: "내 역할과 기여", rows: [
+              ["내 역할", "프로젝트 기록 구조와 시연을 기획했습니다."],
+              ["내가 만든 것", "산출물·진행·로그를 연결한 HTML 시안과 변경 전·처음 반영·재검증 후를 비교하는 화면을 구성했습니다."]
+            ], files: ["demo", "capture"] },
+            { title: "주요 결정", rows: [
+              ["11월 26일 · 시연 범위 확정", "변경의 영향과 그 근거를 하나의 공모전 프로젝트에서 보여주기로 했습니다."],
+              ["11월 27일 · HTML 시연 선택", "버튼을 직접 눌러 예외 화면까지 확인할 수 있도록 현장 시연 형식을 바꿨습니다. 발표 초안에는 수정 대상 문장을 표시했습니다."]
+            ], files: ["draft"] },
+            { title: "진행 일정", phase: "plan", rows: [
+              ["11월 14일", "기획안·시연·발표·리허설의 네 단계를 잡았습니다."],
+              ["11월 26일", "기획안과 완료 판단 기준을 확정했습니다."],
+              ["12월 11일 목표", "발표 PDF와 심사용 영상을 준비해 리허설과 제출을 마칩니다."]
+            ] },
+            { title: "어려웠던 점과 대응", kind: "difficulty", subtitle: "필수 제출 영상 작업 누락", rows: [
+              ["상황과 영향", "동일한 ‘영상’이 현장에서 재생할 영상과 심사용 제출 파일을 모두 가리켜, 첫 변경에서 필수 파일을 만드는 작업까지 함께 빠졌습니다."],
+              ["내 대응", "사용자의 변경 요청과 예시 공고를 각각 대조해 두 영상의 범위를 구분했습니다. 기존 제출 기한과 첨부 조건을 남은 일에 되돌리는 흐름을 설계했습니다."],
+              ["확인 결과", "리허설은 HTML, 발표 초안은 수정 후보, 심사용 영상은 필수 제출 작업으로 표시되도록 세 항목을 다시 대조했습니다."]
+            ], files: ["notice", "draft"] },
+            { title: "결과와 검증", rows: [
+              ["확인한 결과", "HTML 화면 이동, 공고 원문 열기, 재검증 전후의 세 항목 비교를 시안에서 확인했습니다."],
+              ["남은 검증", "예외 화면을 포함한 전체 리허설과 실제 모델의 영향 탐색 정확도는 별도로 확인할 사항입니다."]
+            ], files: ["demo"] }
+          ],
+          image: "../../v4/screenshots/project-change-revalidation.png",
+          caption: "시연 변경과 재검증 화면",
+          links: [["현장 시연 HTML", "project-workflow-layers.html"], ["재검증 시안", "project-change-revalidation.html"]]
+        }
+      },
+      serviceContest: {
+        category: "contest",
+        title: "서비스 기획 대회",
+        role: "사용자 조사 · 발표 자료",
+        startDate: "2026-11-20",
+        targetDate: "2026-12-07",
+        summary: "사용자 조사에서 확인한 문제를 발표 자료에 정리하고 있어요.",
+        tags: ["발표 준비", "서비스 기획"],
+        document: { name: "서비스 기획 발표 초안", path: "발표자료/서비스-기획.md", section: "사용자 조사", line: "사용자 다섯 명에게 기존 작업 흐름을 물었습니다." },
+        tasks: [["대회 요구사항 확인", "완료"], ["사용자 조사", "완료"], ["발표 자료 구성", "진행 중"], ["발표 리허설", "예정"]],
+        stageDetails: {
+          "대회 요구사항 확인": { body: "발표에 문제, 연구 근거, 제안과 기대 결과가 모두 들어가는지 점검할 항목을 정했어요." },
+          "사용자 조사": { body: "사용자 다섯 명에게 기존 작업 흐름을 물어보고, 반복된 불편을 발표 사례로 골랐어요.", files: ["draft"] }
+        },
+        logs: [{ date: "2026-11-27", title: "발표 사례 선정", description: "인터뷰 기록을 바탕으로 발표에 넣을 사례를 골랐어요.", files: ["draft"] }]
+      },
+      scholarship: {
+        category: "scholarship",
+        title: "학생 연구 장학금 지원",
+        role: "신청 준비",
+        startDate: "2026-11-18",
+        targetDate: "2026-12-02",
+        summary: "지원 조건을 확인하고 연구 경험을 신청서에 정리하고 있어요.",
+        tags: ["지원 서류"],
+        document: { name: "장학금 신청서", path: "지원서/장학금-신청서.md", section: "연구 경험", line: "실험 결과를 비교하고 주요 차이를 표로 정리했습니다." },
+        tasks: [["지원 조건 확인", "완료"], ["필수 서류 확보", "완료"], ["신청서 문항 작성", "진행 중"], ["제출본 점검", "예정"]],
+        stageDetails: {
+          "지원 조건 확인": { body: "공고에서 신청 자격과 제출 마감, 필수 서류의 종류를 확인했어요." },
+          "필수 서류 확보": { body: "요구된 서류 목록을 확인하고, 연구 경험을 설명할 표와 신청서 초안을 정리했어요.", files: ["draft"] }
+        },
+        logs: [{ date: "2026-11-26", title: "신청서 초안 작성", description: "공고에서 필수 서류를 확인하고 신청서 초안을 만들었어요.", files: ["draft"] }]
+      },
+      lab: {
+        category: "lab",
+        title: "연구실 실험 정리",
+        role: "실험 · 데이터 정리",
+        startDate: "2026-11-14",
+        targetDate: "2026-12-20",
+        summary: "실험 조건별 결과를 검토하고 비교 자료를 만들고 있어요.",
+        tags: ["실험", "데이터"],
+        document: { name: "실험 정리 초안", path: "실험/결과-정리.md", section: "비교 조건", line: "두 조건의 측정 횟수를 동일하게 맞췄습니다." },
+        tasks: [["실험 결과 수집", "완료"], ["실험 결과표 검토", "진행 중"], ["조건별 결과 시각화", "예정"], ["정리본 공유", "예정"]],
+        stageDetails: {
+          "실험 결과 수집": { body: "측정 횟수가 같은 두 조건을 골라 관측 결과표와 비교 조건을 연결했어요.", files: ["draft"] }
+        },
+        logs: [{ date: "2026-11-25", title: "실험 근거 연결", description: "비교할 실험 조건과 결과표 위치를 연결했어요.", files: ["draft"] }]
+      },
+      course: {
+        category: "course",
+        title: "수업 팀 프로젝트",
+        role: "조사 · 보고서",
+        startDate: "2026-11-14",
+        targetDate: "2026-12-04",
+        summary: "사용자 조사 결과로 팀 보고서를 다듬고 있어요.",
+        tags: ["보고서", "팀 프로젝트"],
+        document: { name: "사용자 조사 보고서", path: "보고서/사용자-조사.md", section: "조사 방법", line: "팀원 네 명이 인터뷰 결과를 주제별로 묶었습니다." },
+        tasks: [["팀원 역할 확정", "완료"], ["인터뷰 결과 합치기", "완료"], ["보고서 결과 문단 보완", "진행 중"], ["최종 보고서 제출", "예정"]],
+        stageDetails: {
+          "팀원 역할 확정": { body: "팀원 네 명이 조사 기록을 검토하고 주제별 결과 정리를 맡을 역할을 나눴어요." },
+          "인터뷰 결과 합치기": { body: "같은 불편을 설명한 인터뷰를 주제별로 묶고 보고서에서 관련 근거를 찾아볼 수 있게 했어요.", files: ["draft"] }
+        },
+        logs: [{ date: "2026-11-26", title: "인터뷰 기록 정리", description: "인터뷰 기록을 주제별로 정리했어요.", files: ["draft"] }]
+      },
+      personal: {
+        category: "personal",
+        title: "개인 프로젝트 아카이브",
+        role: "디자인 · 개발",
+        startDate: "2026-11-01",
+        targetDate: "2026-11-22",
+        completedDate: "2026-11-20",
+        summary: "기록과 자료를 연결한 프로젝트 소개 페이지를 만들었어요.",
+        tags: ["포트폴리오"],
+        document: { name: "프로젝트 소개", path: "소개/프로젝트-아카이브.md", section: "작업 결과", line: "프로젝트 카드에서 원본 기록과 자료를 확인할 수 있습니다." },
+        tasks: [["프로젝트 소개 페이지 작성", "완료"], ["연결 자료 열기 확인", "완료"]],
+        stageDetails: {
+          "프로젝트 소개 페이지 작성": { body: "목록에 프로젝트별 요약을 표시하고, 상세 페이지의 문제·기여·검증을 이어서 읽는 구조를 만들었어요.", files: ["draft"], recordPhase: "plan" },
+          "연결 자료 열기 확인": { body: "11월 20일에 프로젝트 카드에서 상세 소개를 열고, 소개에서 관련 작업 자료로 이동하는 흐름을 확인했어요.", files: ["draft"], recordPhase: "work" }
+        },
+        logs: [{ date: "2026-11-20", title: "프로젝트 소개 마무리", description: "소개 페이지와 자료 연결을 확인하고 프로젝트를 마쳤어요.", files: ["draft"] }],
+        record: {
+          title: "개인 프로젝트 아카이브",
+          lead: "여러 프로젝트의 작업 경위와 근거를 한곳에서 확인할 수 있도록 소개 페이지를 만들었습니다.",
+          sections: [
+            { title: "문제와 목표", phase: "plan", rows: [["문제", "최신 요약과 원본 기록이 흩어져 있어 완성한 작업을 설명하기 어려웠습니다."], ["목표", "목록에서 프로젝트를 선택하고 상세 소개와 근거로 이동하는 흐름을 구성합니다."]] },
+            { title: "내 역할과 기여", phase: "plan", rows: [["내 작업", "프로젝트 카드와 상세 페이지를 설계하고 프로젝트별 기록과 자료를 연결했습니다."]], files: ["draft"] },
+            { title: "주요 결정", phase: "plan", rows: [["목록과 상세", "목록에는 제목과 요약을 두고, 상세에는 작업 흐름과 관련 근거를 배치했습니다."]] },
+            { title: "진행 일정", phase: "plan", rows: [["11월 1일", "전체 구성을 정했습니다."], ["11월 12일", "상세 페이지와 자료를 연결했습니다."], ["11월 20일", "링크 이동을 확인하고 프로젝트를 마쳤습니다."]] },
+            { title: "어려웠던 점과 대응", kind: "difficulty", subtitle: "설명과 근거가 떨어져 있는 문제", rows: [["상황과 영향", "소개 글만 보면 일부 작업의 결정 배경을 확인하기 어려웠습니다."], ["내 대응", "소개 문장에서 관련 자료로 바로 이동하도록 연결했습니다."], ["확인 결과", "목록에서 상세 소개를 열고 소개에서 근거에 도달하는 흐름을 확인했습니다."]], files: ["draft"] },
+            { title: "결과와 검증", rows: [["확인한 결과", "11월 20일에 프로젝트 목록에서 상세 페이지와 연결 자료를 여는 흐름을 확인했습니다."]], files: ["draft"] }
+          ],
+          image: "../../v2/screenshots/public-project-list.png",
+          caption: "프로젝트 목록 화면 예시",
+          links: [["프로젝트 목록과 상세 화면", "../../v2/previews/public-project-report.html"]]
+        }
+      },
+      campus: {
+        category: "campus",
+        title: "학과 행사 소개 페이지",
+        role: "웹 제작",
+        startDate: "2026-11-23",
+        targetDate: "2026-12-06",
+        summary: "참가자가 행사 일정과 장소를 확인할 페이지를 만들고 있어요.",
+        tags: ["행사 운영"],
+        document: { name: "행사 소개 초안", path: "행사/소개-페이지.md", section: "행사 일정", line: "프로그램 순서는 운영팀 확인 후 확정합니다." },
+        tasks: [["행사 운영팀 요구사항 확인", "완료"], ["행사 일정과 장소 배치", "진행 중"], ["안내 문구 검토", "예정"], ["페이지 공개", "예정"]],
+        stageDetails: {
+          "행사 운영팀 요구사항 확인": { body: "참가자가 페이지에서 바로 확인해야 할 일정, 장소, 프로그램 정보를 운영팀 안내에서 골랐어요.", files: ["draft"] }
+        },
+        logs: [{ date: "2026-11-25", title: "행사 안내 초안 구성", description: "행사 일정표와 장소 안내를 초안에 연결했어요.", files: ["draft"] }]
+      }
+    };
+
+    const get = id => document.getElementById(id);
+    const dialog = get("document-dialog");
+    const reportDialog = get("report-dialog");
+    const tagDialog = get("tag-dialog");
+    const ideaDialog = get("idea-dialog");
+    const planDialog = get("plan-dialog");
+    const promptDialog = get("prompt-dialog");
+    const presetLinkDialog = get("preset-link-dialog");
+    const presetNameDialog = get("preset-name-dialog");
+    const evaluationDialog = get("evaluation-dialog");
+    const line = get("document-line");
+    const status = get("copy-status");
+    const manualCopy = get("manual-copy");
+    const tagInput = get("tag-name");
+    const tagStatus = get("tag-status");
+    const tagStorageKey = "worklog-v4-preview-project-tags";
+    const ideaStorageKey = "worklog-v4-preview-ideas";
+    const legacyPromptStorageKey = "worklog-v4-preview-prompts";
+    const presetStorageKey = "worklog-v4-preview-presets";
+    const evaluationStorageKey = "worklog-v4-preview-evaluations";
+    const referenceStorageKey = "worklog-v4-preview-references";
+    const monthDay = new Intl.DateTimeFormat("ko-KR", { month: "long", day: "numeric", timeZone: "UTC" });
+    let activeProject;
+    let activeProjectKey;
+    let activeDocument;
+    let activeReference;
+    let activeTag = null;
+    let savedTags = {};
+    let editingIdea = null;
+    let promotingIdea = null;
+    let selectedPresetId = "startup";
+    let presetReturn = "#home";
+    let selectedEvaluationId;
+    const activeEvaluationRuns = new Set();
+    const referenceChanges = readSettings(referenceStorageKey);
+    const promptDefaults = {
+      progress: "실제 작업과 팀의 결정을 구분한다. 변경이 영향을 주는 계획 단계와 자료를 찾고, 각각 갱신할 항목과 근거를 제안한다. 근거가 부족하면 미확인으로 표시한다.",
+      evaluation: "같은 버전의 제출본과 평가표로 독립적으로 평가한다. 다른 평가자의 결과를 보지 않고, 항목마다 근거 문장과 점수를 제시한다.",
+      review: "원문 요구사항과 산출물을 대조한다. 빠진 항목, 근거가 모호한 항목, 확인을 통과한 항목을 구분해서 보고한다."
+    };
+    const projectPromptContext = {
+      contest: "대회 공고에서 현장 시연과 필수 제출물을 각각 확인한다.",
+      lab: "비교 조건, 표의 단위, 결과를 뒷받침하는 원본을 확인한다.",
+      scholarship: "지원 조건, 제출 마감, 필수 서류를 공고와 대조한다."
+    };
+    const defaultPresetForCategory = { contest: "startup", lab: "research", scholarship: "scholarship" };
+    const roleLabels = { progress: "진행", evaluation: "독립 평가", review: "검수" };
+    const defaultPersonaNames = { progress: "진행 기록 정리", evaluation: "독립 심사위원 A", review: "제출본 검수" };
+    const builtinPresets = {
+      startup: { name: "창업대회", roles: defaultPromptRoles("contest") },
+      research: { name: "연구실", roles: defaultPromptRoles("lab") },
+      scholarship: { name: "장학금", roles: defaultPromptRoles("scholarship") },
+      general: { name: "기본", roles: defaultPromptRoles() }
+    };
+    const storedPresets = readSettings(presetStorageKey);
+    const presets = Object.fromEntries(Object.entries({ ...builtinPresets, ...storedPresets.presets }).map(([key, preset]) => [
+      key, normalizePreset(preset, Object.keys(defaultPresetForCategory).find(category => defaultPresetForCategory[category] === key))
+    ]));
+    const presetLinks = storedPresets.links || {};
+    const evaluations = readSettings(evaluationStorageKey);
+    const demoEvaluation = {
+      submission: "프로젝트 작업 기록 에이전트\n시연 계획에서 리허설과 별도 영상 제출 조건을 연결한다. 변경 사항을 공고와 대조하고, 누락된 작업을 복구해 다시 확인한다.",
+      criteria: "문제의 구체성 30점, 판단과 근거 40점, 검증 계획 30점. 각 항목의 근거를 적는다.",
+      results: [
+        { score: "86/100", reason: "현장 시연과 별도 제출 영상의 조건을 구분하고, 공고 대조 후 누락을 복구하는 순서가 명확해요. 반복해서 자료 확인이 실패했을 때의 기준을 추가하면 좋아요." },
+        { score: "89/100", reason: "변경 사항을 공고 원문에 다시 대조하는 행동이 구체적이에요. 누락된 작업이 복구되었다고 판단할 완료 조건과 관련 자료를 함께 보여주면 더 명확해요." },
+        { score: "84/100", reason: "변경을 확인한 뒤 복구하고 한 번 더 확인하는 흐름은 시연하기 쉬워요. 연결되지 않은 자료를 놓쳤을 때를 검증 계획에 추가하면 좋아요." }
+      ]
+    };
+    const exampleIdeas = [
+      { id: "note-application", title: "자기소개서 초안", text: "기술적 문제를 해결했던 경험과 팀에서 맡은 역할을 모아보기.", category: "career" },
+      { id: "note-side-project", title: "개인 프로젝트 아이디어", text: "자주 참고하는 링크를 한곳에 모아두는 작은 웹 도구.", category: "personal" }
+    ];
+    let ideaState = { notes: exampleIdeas, projects: [] };
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(ideaStorageKey));
+      if (Array.isArray(saved?.notes) && Array.isArray(saved?.projects)) ideaState = saved;
+    } catch {
+      // The initial examples can still be edited in this session.
+    }
+    for (const note of ideaState.projects) registerPromotedIdea(note);
+
+    try {
+      savedTags = JSON.parse(localStorage.getItem(tagStorageKey)) || {};
+    } catch {
+      savedTags = {};
+    }
+    for (const [key, project] of Object.entries(projects)) {
+      const saved = savedTags[key];
+      if (Array.isArray(saved) && saved.every(tag => typeof tag === "string")) project.tags = saved;
+    }
+    if (!storedPresets.legacyImported) importLegacyPrompts();
+
+    function isComplete(project) {
+      return project.tasks.length > 0 && project.tasks.every(([, state]) => state === "완료");
+    }
+
+    function readSettings(key) {
+      try {
+        const value = JSON.parse(localStorage.getItem(key));
+        return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+      } catch {
+        return {};
+      }
+    }
+
+    function saveSettings(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    function dayDifference(later, earlier) {
+      return (Date.parse(later) - Date.parse(earlier)) / 86_400_000;
+    }
+
+    function projectDate(project) {
+      if (project.completedDate) return monthDay.format(Date.parse(project.completedDate)) + " 완료";
+      if (!project.targetDate) return "목표일 미정";
+      return "목표 " + monthDay.format(Date.parse(project.targetDate));
+    }
+
+    function registerPromotedIdea(note) {
+      if (typeof note?.id !== "string" || !note.id.startsWith("note-") || !Object.hasOwn(categories, note.category)) return;
+      projects[note.id] = {
+        title: note.title, summary: note.text, idea: true, category: note.category, plan: note.plan,
+        startDate: note.createdOn, targetDate: note.plan?.targetDate,
+        tags: projects[note.id]?.tags || [],
+        tasks: (note.plan?.stages || []).map(stage => [stage.title, "예정"]), logs: []
+      };
+    }
+
+    function addPlanStage(stage = {}) {
+      const row = document.createElement("div");
+      row.className = "plan-input";
+      const fields = [["단계 이름", "stage-title", stage.title], ["완료 조건", "stage-condition", stage.condition]];
+      for (const [label, className, value] of fields) {
+        const field = textElement("label", label);
+        const input = document.createElement("input");
+        input.className = className;
+        input.value = value || "";
+        input.required = true;
+        field.append(input);
+        row.append(field);
+      }
+      const remove = actionButton("삭제", () => {
+        if (get("plan-inputs").children.length > 1) row.remove();
+      });
+      remove.setAttribute("aria-label", "이 단계 삭제");
+      row.append(remove);
+      get("plan-inputs").append(row);
+    }
+
+    function openPlan() {
+      const plan = activeProject.plan;
+      get("plan-goal").value = plan?.goal || "";
+      get("plan-target").value = plan?.targetDate || "";
+      get("plan-inputs").replaceChildren();
+      for (const stage of plan?.stages || [{}]) addPlanStage(stage);
+      planDialog.showModal();
+    }
+
+    function defaultPromptRoles(category) {
+      const context = projectPromptContext[category];
+      return Object.fromEntries(Object.entries(promptDefaults).map(([role, text]) => [
+        role, { text: [text, context].filter(Boolean).join("\n\n"), model: "" }
+      ]));
+    }
+
+    function savePresetSettings() {
+      return saveSettings(presetStorageKey, { presets, links: presetLinks, legacyImported: true });
+    }
+
+    function projectPresetId(key, project) {
+      if (Object.hasOwn(presetLinks, key)) {
+        const assigned = presetLinks[key];
+        return Object.hasOwn(presets, assigned) ? assigned : null;
+      }
+      return defaultPresetForCategory[project.category] || "general";
+    }
+
+    function importLegacyPrompts() {
+      const old = readSettings(legacyPromptStorageKey);
+      for (const [key, entries] of Object.entries(old)) {
+        if (!Object.hasOwn(projects, key) || !entries || Object.hasOwn(presetLinks, key)) continue;
+        const project = projects[key];
+        const roles = defaultPromptRoles(project.category);
+        let customized = false;
+        for (const [role, defaults] of Object.entries(roles)) {
+          const saved = entries[role];
+          if (!saved || typeof saved.text !== "string") continue;
+          const model = typeof saved.model === "string" ? saved.model : "";
+          customized ||= saved.text !== defaults.text || model !== "";
+          roles[role] = { text: saved.text, model };
+        }
+        if (customized) {
+          const id = "imported-" + key;
+          presets[id] = normalizePreset({ name: project.title + " · 가져온 프리셋", roles }, project.category);
+          presetLinks[key] = id;
+        }
+      }
+      if (Object.keys(old).length) savePresetSettings();
+    }
+
+    function fillPresetPicker(element, id, blankLabel) {
+      const options = Object.entries(presets).map(([key, preset]) => {
+        const option = textElement("option", preset.name);
+        option.value = key;
+        return option;
+      });
+      if (blankLabel) {
+        const blank = textElement("option", blankLabel);
+        blank.value = "";
+        options.unshift(blank);
+      }
+      element.replaceChildren(...options);
+      element.value = id || "";
+    }
+
+    function normalizePreset(preset, category) {
+      const defaults = defaultPromptRoles(category);
+      const roles = Object.fromEntries(Object.keys(roleLabels).map(role => {
+        const value = preset.roles?.[role];
+        if (Array.isArray(value)) return [role, value];
+        const first = { id: role + "-a", name: defaultPersonaNames[role], ...defaults[role], ...value };
+        const personas = [first];
+        if (role === "evaluation") {
+          first.model ||= "GPT";
+          if (!value?.text) first.text += "\n\n문제 정의와 평가 기준을 중심으로 점수를 매긴다.";
+          personas.push({
+            id: "evaluation-b", name: "독립 심사위원 B", model: "Claude",
+            text: defaults[role].text + "\n\n판단을 뒷받침하는 근거와 검증 계획을 중심으로 점수를 매긴다."
+          });
+        }
+        return [role, personas];
+      }));
+      return { name: preset.name, roles };
+    }
+
+    function navigatePresetLibrary(preferred) {
+      if (preferred && Object.hasOwn(presets, preferred)) selectedPresetId = preferred;
+      if (location.hash !== "#presets") presetReturn = location.hash || "#home";
+      location.hash = "presets";
+    }
+
+    function renderPresetLibrary() {
+      const preset = presets[selectedPresetId];
+      const count = Object.entries(projects).filter(([key, project]) => projectPresetId(key, project) === selectedPresetId).length;
+      get("preset-back").href = presetReturn;
+      get("preset-back").textContent = presetReturn === "#home" ? "내 프로젝트" : "프로젝트로 돌아가기";
+      get("preset-usage").textContent = preset.name + " · 연결된 프로젝트 " + count + "개";
+      get("preset-tabs").replaceChildren(...Object.entries(presets).map(([key, definition]) => {
+        const button = actionButton(definition.name, () => {
+          selectedPresetId = key;
+          get("preset-status").textContent = "";
+          renderPresetLibrary();
+          get("preset-tabs").querySelector('[aria-pressed="true"]').focus();
+        });
+        const active = key === selectedPresetId;
+        button.setAttribute("aria-pressed", String(active));
+        if (active) button.classList.add("primary");
+        return button;
+      }));
+
+      const blocks = Object.entries(roleLabels).map(([role, label]) => {
+        const block = document.createElement("section");
+        block.className = "preset-block";
+        const title = textElement("h2", label);
+        title.id = "preset-block-" + role;
+        block.setAttribute("aria-labelledby", title.id);
+        const list = document.createElement("div");
+        list.className = "persona-list";
+        for (const persona of preset.roles[role]) {
+          const card = document.createElement("article");
+          card.className = "persona-card";
+          const heading = document.createElement("div");
+          heading.className = "persona-title";
+          heading.append(textElement("strong", persona.name));
+          if (persona.model) heading.append(textElement("span", persona.model, "quiet"));
+          const view = actionButton("프롬프트 보기", () => viewPersona(role, persona));
+          view.setAttribute("aria-label", persona.name + " 프롬프트 보기");
+          card.append(heading, textElement("p", persona.text, "quiet"), view);
+          list.append(card);
+        }
+        block.append(title, list);
+        return block;
+      });
+      get("preset-blocks").replaceChildren(...blocks);
+    }
+
+    function viewPersona(role, persona) {
+      get("persona-context").textContent = presets[selectedPresetId].name + " · " + roleLabels[role] + " · " + persona.name;
+      get("persona-model").textContent = "모델 · " + (persona.model || "자동 선택");
+      get("prompt-text").textContent = persona.text;
+      promptDialog.showModal();
+    }
+
+    function openPresetRequest() {
+      get("preset-request-base").textContent = presets[selectedPresetId].name + "의 설정을 바탕으로 새 프리셋을 만들어요.";
+      get("preset-name-form").reset();
+      presetNameDialog.showModal();
+    }
+
+    function preparePreset(purpose) {
+      const base = presets[selectedPresetId];
+      const roles = structuredClone(base.roles);
+      const defaults = normalizePreset({ name: base.name });
+      const models = { progress: ["GPT"], evaluation: ["GPT", "Claude", "Gemini"], review: ["Gemini"] };
+      for (const [role, entries] of Object.entries(roles)) {
+        if (!entries.length) roles[role] = defaults.roles[role];
+        roles[role] = roles[role].map((persona, index) => ({
+          ...persona,
+          model: persona.model || models[role][index % models[role].length],
+          text: persona.text + "\n\n이번 설정의 작업 목적\n" + purpose
+        }));
+      }
+      const label = purpose.length > 24 ? purpose.slice(0, 23) + "…" : purpose;
+      return { name: base.name + " · " + label, roles };
+    }
+
+    function showLinkedPrompt() {
+      const selected = get("project-preset").value;
+      const preset = presets[selected];
+      const role = get("linked-preset-role").value;
+      const personas = preset?.roles[role] || [];
+      const picker = get("linked-persona");
+      const keep = picker.value;
+      picker.replaceChildren(...personas.map(persona => {
+        const option = textElement("option", persona.name);
+        option.value = persona.id;
+        return option;
+      }));
+      if (personas.some(persona => persona.id === keep)) picker.value = keep;
+      const prompt = personas.find(persona => persona.id === picker.value);
+      const attached = selected === projectPresetId(activeProjectKey, activeProject);
+      get("linked-preset-preview").hidden = !preset;
+      picker.disabled = !prompt;
+      get("linked-prompt-text").textContent = prompt?.text || "이 역할에 등록된 페르소나가 없어요.";
+      get("linked-model").textContent = prompt?.model ? "모델 · " + prompt.model : "";
+      get("linked-model").hidden = !prompt?.model;
+      get("copy-prompt").hidden = role === "evaluation";
+      get("copy-prompt").disabled = !attached || !prompt;
+      get("prompt-manual-copy").hidden = true;
+    }
+
+    function openProjectPreset() {
+      const id = projectPresetId(activeProjectKey, activeProject);
+      get("linked-project").textContent = activeProject.title;
+      fillPresetPicker(get("project-preset"), id, "연결 안 함");
+      get("linked-preset-role").value = "progress";
+      get("preset-link-status").textContent = "";
+      showLinkedPrompt();
+      presetLinkDialog.showModal();
+    }
+
+    function evaluationRuns() {
+      return evaluations[activeProjectKey] ||= [];
+    }
+
+    function selectedEvaluation() {
+      return evaluationRuns().find(run => run.id === selectedEvaluationId);
+    }
+
+    function activeJudges() {
+      const preset = presets[projectPresetId(activeProjectKey, activeProject)];
+      return preset?.roles.evaluation || [];
+    }
+
+    function openEvaluation() {
+      get("evaluation-project").textContent = activeProject.title;
+      selectedEvaluationId = evaluationRuns().at(-1)?.id || "";
+      get("evaluation-start").reset();
+      get("evaluation-status").textContent = "";
+      renderEvaluation();
+      evaluationDialog.showModal();
+      const run = selectedEvaluation();
+      if (run) launchDemoRun(activeProjectKey, run);
+    }
+
+    function renderEvaluation() {
+      const runs = evaluationRuns();
+      const run = selectedEvaluation();
+      const chooser = get("evaluation-run");
+      const newOption = textElement("option", "새 제출본");
+      newOption.value = "";
+      chooser.replaceChildren(newOption, ...runs.map((item, index) => {
+        const option = textElement("option", item.version || "평가 " + (index + 1));
+        option.value = item.id;
+        return option;
+      }));
+      chooser.value = selectedEvaluationId;
+      get("evaluation-history").hidden = runs.length < 2 && (Boolean(run) || !runs.length);
+      get("evaluation-start").hidden = Boolean(run);
+      get("start-evaluation-run").disabled = !activeJudges().length;
+      get("evaluation-running").hidden = !run;
+
+      const area = get("evaluation-personas");
+      area.replaceChildren();
+      area.classList.remove("evaluation-comparison");
+      if (!run) return;
+      const isDemo = run.mode === "demo";
+      const count = run.judges.filter(judge => Object.hasOwn(run.results, judge.id)).length;
+      const complete = count === run.judges.length;
+      const summary = [isDemo ? "예시 평가" : "이전 평가", run.version, run.presetName,
+        count + "/" + run.judges.length + " 완료"].filter(Boolean).join(" · ");
+      get("evaluation-progress").textContent = summary + (complete ? ""
+        : isDemo ? " · 모든 세션이 끝나면 점수와 근거가 표시돼요." : "");
+      area.classList.toggle("evaluation-comparison", complete);
+
+      for (const judge of run.judges) {
+        const card = document.createElement("article");
+        card.className = "persona-card";
+        const header = document.createElement("div");
+        header.className = "persona-title";
+        header.append(textElement("strong", judge.name));
+        if (judge.model) header.append(textElement("span", judge.model, "quiet"));
+        card.append(header);
+        const result = run.results[judge.id];
+        if (complete) {
+          const review = document.createElement("div");
+          review.className = "evaluation-result";
+          const label = result.score ? (isDemo ? "예시 점수 · " : "점수 · ") + result.score : "모델 연동 필요";
+          review.append(textElement("strong", label), textElement("p", result.reason));
+          card.append(review);
+        } else {
+          const state = result ? "완료" : isDemo ? "별도 세션에서 평가 중" : "기록 대기";
+          card.append(textElement("span", state, "status"));
+        }
+        area.append(card);
+      }
+    }
+
+    function evaluateDemoPacket(packet) {
+      if (packet.submission.trim() === packet.example.submission
+        && packet.criteria.trim() === packet.example.criteria) {
+        return packet.example.result;
+      }
+      return { score: "", reason: "모델 연동 후 제출본에 대한 근거가 여기에 표시돼요. 비교 화면은 예시 불러오기로 확인할 수 있어요." };
+    }
+
+    function runDemoSession(packet, delay) {
+      return new Promise(resolve => {
+        let worker;
+        let workerUrl;
+        let deadline;
+        let settled = false;
+
+        function finish(result) {
+          if (settled) return;
+          settled = true;
+          clearTimeout(deadline);
+          worker?.terminate();
+          if (workerUrl) URL.revokeObjectURL(workerUrl);
+          resolve(result);
+        }
+
+        try {
+          const script = "self.onmessage = ({ data }) => setTimeout(() => self.postMessage((" + evaluateDemoPacket.toString() + ")(data)), " + delay + ");";
+          workerUrl = URL.createObjectURL(new Blob([script], { type: "text/javascript" }));
+          worker = new Worker(workerUrl);
+          worker.onmessage = ({ data }) => finish(data);
+          worker.onerror = () => finish(evaluateDemoPacket(packet));
+          deadline = setTimeout(() => finish(evaluateDemoPacket(packet)), delay + 3000);
+          worker.postMessage(packet);
+        } catch {
+          finish(evaluateDemoPacket(packet));
+        }
+      });
+    }
+
+    function launchDemoRun(projectKey, run) {
+      if (run.mode !== "demo" || activeEvaluationRuns.has(run.id)) return;
+      const pending = run.judges.map((judge, index) => ({ judge, index }))
+        .filter(({ judge }) => !Object.hasOwn(run.results, judge.id));
+      if (!pending.length) return;
+      activeEvaluationRuns.add(run.id);
+
+      // Each worker receives only the shared materials and its own judge settings.
+      const jobs = pending.map(({ judge, index }) => {
+        const packet = {
+          project: run.project, version: run.version, submission: run.submission, criteria: run.criteria, judge,
+          example: {
+            submission: demoEvaluation.submission, criteria: demoEvaluation.criteria,
+            result: demoEvaluation.results[index % demoEvaluation.results.length]
+          }
+        };
+        return runDemoSession(packet, 900 + Math.min(index, 5) * 550).then(result => {
+          run.results[judge.id] = result;
+          const saved = saveSettings(evaluationStorageKey, evaluations);
+          if (!evaluationDialog.open || activeProjectKey !== projectKey || selectedEvaluationId !== run.id) return;
+          renderEvaluation();
+          if (run.judges.every(persona => Object.hasOwn(run.results, persona.id))) {
+            get("evaluation-status").textContent = saved
+              ? "모든 예시 평가 결과를 모았어요." : "예시 평가 결과를 이 화면에 모았어요.";
+          }
+        });
+      });
+      Promise.all(jobs).finally(() => activeEvaluationRuns.delete(run.id));
+    }
+    function commitIdeas(state, message) {
+      ideaState = state;
+      try {
+        localStorage.setItem(ideaStorageKey, JSON.stringify(state));
+      } catch {
+        message += " 이 브라우저에서는 현재 화면에만 저장돼요.";
+      }
+      renderIdeas();
+      renderHome();
+      get("idea-status").textContent = message;
+    }
+
+    function openIdeaEditor(note = null) {
+      editingIdea = note;
+      get("idea-dialog-title").textContent = note ? "메모 편집" : "메모 추가";
+      get("idea-form").hidden = false;
+      get("promote-idea-form").hidden = true;
+      get("idea-name").value = note?.title || "";
+      get("idea-text").value = note?.text || "";
+      ideaDialog.showModal();
+      get("idea-name").focus();
+    }
+
+    function openIdeaConversion(note) {
+      promotingIdea = note;
+      get("idea-dialog-title").textContent = "프로젝트로 전환";
+      get("idea-form").hidden = true;
+      get("promote-idea-form").hidden = false;
+      get("promote-idea-name").textContent = note.title;
+      get("idea-category").value = note.category || "personal";
+      ideaDialog.showModal();
+      get("idea-category").focus();
+    }
+
+    function renderIdeas() {
+      const rows = ideaState.notes.map(note => {
+        const row = document.createElement("article");
+        row.className = "idea-row";
+        const content = document.createElement("div");
+        content.append(textElement("h3", note.title));
+        if (note.text) content.append(textElement("p", note.text));
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        const edit = actionButton("편집", () => openIdeaEditor(note));
+        edit.setAttribute("aria-label", note.title + " 메모 편집");
+        const convert = actionButton("프로젝트로 전환", () => openIdeaConversion(note));
+        convert.setAttribute("aria-label", note.title + " 프로젝트로 전환");
+        actions.append(edit, convert);
+        row.append(content, actions);
+        return row;
+      });
+      get("idea-list").replaceChildren(...(rows.length ? rows : [textElement("p", "저장한 메모가 없어요.", "quiet")]));
+    }
+
+    function selectTag(tag) {
+      activeTag = activeTag === tag ? null : tag;
+      renderHome();
+      get(activeTag ? "tag-filter-status" : "projects-title").focus();
+    }
+
+    function tagButton(label, className) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = className + " tag-button";
+      button.textContent = label;
+      button.setAttribute("aria-label", label + " 태그로 보기");
+      button.setAttribute("aria-pressed", String(activeTag === label));
+      button.addEventListener("click", () => selectTag(label));
+      return button;
+    }
+
+    function renderProjectCard(key, project) {
+      const card = get("project-card-template").content.firstElementChild.cloneNode(true);
+      const complete = isComplete(project);
+      const daysSinceStart = dayDifference(project.completedDate || previewDate, project.startDate);
+      const week = Math.floor(daysSinceStart / 7) + 1;
+      const daysLeft = dayDifference(project.targetDate, previewDate);
+      const done = project.tasks.filter(([, state]) => state === "완료").length;
+      const percent = project.tasks.length ? Math.round(done / project.tasks.length * 100) : 0;
+
+      const link = card.querySelector(".project-title-link");
+      link.href = "#" + key;
+      link.textContent = project.title;
+      card.querySelector("p").textContent = project.summary;
+      const state = card.querySelector(".status");
+      state.textContent = complete ? "완료" : project.idea ? (project.plan ? "시작 전" : "계획 전") : daysSinceStart < 0 ? "시작 전" : "진행 중";
+      state.classList.toggle("complete", complete);
+      const [role, date] = card.querySelectorAll("footer span");
+      role.textContent = project.role || "";
+      date.textContent = projectDate(project);
+
+      const elapsed = card.querySelector(".elapsed");
+      if (project.idea || daysSinceStart < 0) elapsed.textContent = "시작 예정";
+      else elapsed.textContent = "시작 후 " + week + "주 차" + (complete ? "에 완료" : "");
+      const remaining = card.querySelector(".remaining");
+      remaining.hidden = complete || !project.targetDate;
+      if (daysLeft > 0) remaining.textContent = daysLeft + "일 남음";
+      else if (daysLeft === 0) remaining.textContent = "오늘이 목표일";
+      else remaining.textContent = "목표일 " + Math.abs(daysLeft) + "일 지남";
+      const label = card.querySelector(".progress-label strong");
+      label.textContent = percent + "%";
+      label.title = project.tasks.length + "단계 중 " + done + "단계 완료";
+      const progress = card.querySelector("progress");
+      progress.value = percent;
+      progress.setAttribute("aria-valuetext", percent + "%, " + label.title);
+      card.querySelector(".card-metrics").hidden = !project.tasks.length;
+
+      card.querySelector(".tag-list").append(...project.tags.map(label => tagButton(label, "tag")));
+      return card;
+    }
+
+    function groupBySharedTag(entries) {
+      let remaining = entries;
+      const groups = [];
+      // Place each project once, starting with the tag shared by the most projects in this category.
+      while (remaining.length > 1) {
+        const counts = new Map();
+        for (const [, project] of remaining) {
+          for (const tag of new Set(project.tags)) counts.set(tag, (counts.get(tag) || 0) + 1);
+        }
+        const [tag, count] = [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ko"))[0] || [];
+        if (!tag || count < 2) break;
+        groups.push({ tag, entries: remaining.filter(([, project]) => project.tags.includes(tag)) });
+        remaining = remaining.filter(([, project]) => !project.tags.includes(tag));
+      }
+      if (remaining.length) groups.push({ tag: "", entries: remaining });
+      return groups;
+    }
+
+    function renderHome() {
+      const all = Object.entries(projects);
+      const completed = all.filter(([, project]) => isComplete(project));
+      const visibleEntries = activeTag === null
+        ? all.filter(([, project]) => !isComplete(project))
+        : all.filter(([, project]) => project.tags.includes(activeTag));
+      get("tag-filter").hidden = activeTag === null;
+      get("tag-filter-status").textContent = activeTag === null ? "" : activeTag + " 태그 · 프로젝트 " + visibleEntries.length + "개";
+      get("tag-filter-empty").hidden = visibleEntries.length > 0;
+      get("completed-projects").hidden = activeTag !== null || !completed.length;
+      get("completed-projects-label").textContent = "완료한 프로젝트 · " + completed.length + "개";
+      renderProjectGroups(get("project-groups"), visibleEntries);
+      renderProjectGroups(get("completed-project-groups"), completed);
+    }
+
+    function renderProjectGroups(groups, visibleEntries) {
+      groups.replaceChildren();
+      for (const [category, name] of Object.entries(categories)) {
+        const entries = visibleEntries.filter(([, project]) => project.category === category);
+        if (entries.length === 0) continue;
+        const group = document.createElement("section");
+        const heading = document.createElement("h3");
+        const buckets = document.createElement("div");
+        group.className = "project-group";
+        group.style.setProperty("--span", Math.min(entries.length, 3));
+        heading.id = groups.id + "-" + category;
+        heading.textContent = name;
+        group.setAttribute("aria-labelledby", heading.id);
+        buckets.className = "project-buckets";
+
+        const tagGroups = activeTag === null ? groupBySharedTag(entries) : [{ tag: "", entries }];
+        for (const bucket of tagGroups) {
+          const section = document.createElement(bucket.tag ? "section" : "div");
+          const cards = document.createElement("div");
+          section.className = "tag-group";
+          section.style.setProperty("--span", Math.min(bucket.entries.length, 3));
+          if (bucket.tag) {
+            section.classList.add("shared");
+            section.setAttribute("aria-label", bucket.tag + " 태그");
+            section.append(tagButton(bucket.tag, "tag tag-group-title"));
+          }
+          cards.className = "tag-cards";
+          cards.append(...bucket.entries.map(([key, project]) => renderProjectCard(key, project)));
+          section.append(cards);
+          buckets.append(section);
+        }
+        group.append(heading, buckets);
+        groups.append(group);
+      }
+    }
+
+    function updateTags(tags) {
+      activeProject.tags = tags;
+      const allTags = Object.fromEntries(Object.entries(projects).map(([key, project]) => [key, project.tags]));
+      try {
+        localStorage.setItem(tagStorageKey, JSON.stringify(allTags));
+        tagStatus.textContent = "";
+      } catch {
+        tagStatus.textContent = "이 브라우저에서는 태그를 현재 화면에만 보관해요.";
+      }
+      showTags();
+      renderHome();
+    }
+
+    function showTags() {
+      get("editable-tags").replaceChildren(...activeProject.tags.map(label => {
+        const tag = document.createElement("span");
+        const remove = document.createElement("button");
+        tag.className = "tag";
+        remove.type = "button";
+        remove.className = "remove-tag";
+        remove.setAttribute("aria-label", label + " 태그 삭제");
+        remove.textContent = "×";
+        remove.addEventListener("click", () => {
+          updateTags(activeProject.tags.filter(value => value !== label));
+          tagInput.focus();
+        });
+        tag.append(label, remove);
+        return tag;
+      }));
+    }
+
+    function textElement(tag, text, className = "") {
+      const element = document.createElement(tag);
+      element.textContent = text;
+      element.className = className;
+      return element;
+    }
+
+    function actionButton(label, action) {
+      const button = textElement("button", label, "button");
+      button.type = "button";
+      button.addEventListener("click", action);
+      return button;
+    }
+
+    function openDocument(info, reference = null) {
+      activeDocument = info;
+      activeReference = reference;
+      get("document-title").textContent = info.name;
+      get("document-path").textContent = info.path;
+      get("document-section").textContent = info.section;
+      get("document-note").textContent = info.note || "";
+      get("document-note").hidden = !info.note;
+      line.textContent = info.line;
+      const image = get("document-image");
+      image.hidden = !info.image;
+      if (info.image) {
+        image.src = info.image;
+        image.alt = info.name;
+      } else image.removeAttribute("src");
+      const link = get("document-preview-link");
+      link.hidden = !info.preview;
+      if (info.preview) {
+        link.href = info.preview;
+        link.textContent = info.previewLabel;
+      }
+      status.textContent = "";
+      manualCopy.hidden = true;
+      get("link-form").hidden = true;
+      const canRelink = reference && Object.keys(reference.documents).length > 1;
+      get("open-link-form").hidden = !canRelink;
+      refreshLinkStatus();
+      if (!dialog.open) dialog.showModal();
+    }
+
+    function referenceState(reference) {
+      return referenceChanges[reference.projectKey]?.[reference.scope]?.[reference.key];
+    }
+
+    function linkedDocument(reference) {
+      const selected = referenceState(reference)?.document;
+      return reference.documents[selected] || reference.documents[reference.key];
+    }
+
+    function refreshReferenceButton(reference) {
+      const state = referenceState(reference);
+      reference.button.textContent = linkedDocument(reference).name + (state?.pending ? " · 확인 필요" : "");
+      reference.button.classList.toggle("unconfirmed", Boolean(state?.pending));
+    }
+
+    function refreshLinkStatus() {
+      const state = activeReference ? referenceState(activeReference) : null;
+      get("link-status").hidden = !state;
+      get("link-status").textContent = state?.pending ? "연결을 정정했어요. 이 자료가 항목의 근거인지 확인해 주세요." : "정정한 연결을 확인했어요.";
+      get("confirm-link").hidden = !state?.pending;
+    }
+
+    function updateReference(documentKey, pending) {
+      const reference = activeReference;
+      const project = referenceChanges[reference.projectKey] ||= {};
+      const scope = project[reference.scope] ||= {};
+      scope[reference.key] = { document: documentKey, pending };
+      const saved = saveSettings(referenceStorageKey, referenceChanges);
+      refreshReferenceButton(reference);
+      openDocument(linkedDocument(reference), reference);
+      if (!saved) get("link-status").textContent += " 브라우저 저장을 사용할 수 없어 이 창에서만 유지돼요.";
+    }
+
+    function sourceLinks(keys, documents, scope) {
+      return (keys || []).map(key => {
+        const doc = documents[key];
+        const reference = scope ? { projectKey: activeProjectKey, scope, key, documents } : null;
+        const button = actionButton(doc.name, () => openDocument(reference ? linkedDocument(reference) : doc, reference));
+        button.className = "source-link";
+        if (reference) {
+          reference.button = button;
+          refreshReferenceButton(reference);
+        }
+        return button;
+      });
+    }
+
+    function appendSources(target, keys, documents, scope) {
+      const buttons = sourceLinks(keys, documents, scope);
+      if (!buttons.length) return;
+      const sources = document.createElement("div");
+      sources.className = "source-links";
+      sources.append(...buttons);
+      target.append(sources);
+    }
+
+    function renderRecordSections(record, documents, phase) {
+      const prepared = phase ? record.sections.filter(info => (info.phase || "work") === phase) : record.sections;
+      const sections = prepared.map(info => {
+        const section = document.createElement("section");
+        section.className = "record-section";
+        section.append(textElement("h4", info.title));
+        const entry = document.createElement("div");
+        entry.className = info.kind === "difficulty" ? "record-entry difficulty" : "record-entry";
+        if (info.subtitle) entry.append(textElement("h5", info.subtitle));
+        for (const [label, description] of info.rows) {
+          const row = document.createElement("p");
+          row.append(textElement("strong", label), " · " + description);
+          entry.append(row);
+        }
+        if (documents) appendSources(entry, info.files, documents, "record:" + info.title);
+        section.append(entry);
+        return section;
+      });
+      if (record.links.length && phase !== "plan") {
+        const section = document.createElement("section");
+        section.className = "record-section";
+        const links = document.createElement("div");
+        links.className = "source-links";
+        for (const [label, href] of record.links) {
+          const link = textElement("a", label, "source-link");
+          link.href = href;
+          link.target = "_blank";
+          link.rel = "noopener";
+          links.append(link);
+        }
+        section.append(textElement("h4", documents ? "포트폴리오에 연결할 자료" : "산출물"), links);
+        sections.push(section);
+      }
+      return sections;
+    }
+
+    function stageChecks(checks = []) {
+      return checks.map(([label, state]) => {
+        const row = document.createElement("li");
+        row.append(textElement("span", label), textElement("span", state, state === "확인 중" ? "status" : "status complete"));
+        return row;
+      });
+    }
+
+    function renderActivity(container, byDate, showProjectCount, selectDate, selectMonth) {
+      const chart = get("activity-template").content.firstElementChild.cloneNode(true);
+      chart.setAttribute("aria-label", showProjectCount ? "날짜별 작업 프로젝트 수" : "날짜별 기록 여부");
+      const grid = chart.querySelector(".activity-grid");
+      const label = chart.querySelector(".activity-month");
+      const previous = chart.querySelector(".previous-month");
+      const next = chart.querySelector(".next-month");
+      const legend = chart.querySelector(".activity-legend");
+      if (showProjectCount) {
+        legend.append(textElement("span", "적음"));
+        for (const level of [0, 1, 2, 3]) {
+          const swatch = document.createElement("i");
+          swatch.dataset.level = level;
+          swatch.style.setProperty("--level", level);
+          swatch.setAttribute("aria-hidden", "true");
+          legend.append(swatch);
+        }
+        legend.append(textElement("span", "많음"));
+      } else legend.remove();
+      const end = new Date(previewDate);
+      const currentMonth = Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), 1);
+      let displayed = new Date(currentMonth);
+
+      function drawMonth() {
+        const year = displayed.getUTCFullYear();
+        const month = displayed.getUTCMonth();
+        const firstWeekday = displayed.getUTCDay();
+        const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+        const weeks = Math.ceil((firstWeekday + daysInMonth) / 7);
+        grid.replaceChildren();
+        label.textContent = year + "년 " + (month + 1) + "월";
+        next.disabled = displayed.getTime() >= currentMonth;
+
+        for (let index = 0; index < weeks * 7; index += 1) {
+          const day = index - firstWeekday + 1;
+          const date = new Date(Date.UTC(year, month, day));
+          const iso = date.toISOString().slice(0, 10);
+          const visible = day >= 1 && day <= daysInMonth && date <= end;
+          const count = visible ? byDate.get(iso)?.length || 0 : 0;
+          const cell = count ? document.createElement("button") : document.createElement("span");
+          cell.className = visible ? "activity-cell" : "activity-cell future";
+          const level = showProjectCount ? count : Number(count > 0);
+          cell.dataset.level = String(level);
+          cell.style.setProperty("--level", level);
+          if (count) {
+            cell.type = "button";
+            cell.dataset.date = iso;
+            const activity = showProjectCount ? "작업 프로젝트 " + count + "개" : "작업 로그 보기";
+            cell.setAttribute("aria-label", monthDay.format(date) + " " + activity);
+            cell.title = monthDay.format(date) + " · " + activity;
+            cell.addEventListener("click", () => selectDate(iso));
+          } else {
+            cell.setAttribute("aria-hidden", "true");
+          }
+          grid.append(cell);
+        }
+        const monthKey = displayed.toISOString().slice(0, 7);
+        const entries = [...byDate].filter(([date]) => date.startsWith(monthKey) && date <= previewDate);
+        selectMonth(displayed, entries);
+      }
+
+      function moveMonth(offset) {
+        displayed = new Date(Date.UTC(displayed.getUTCFullYear(), displayed.getUTCMonth() + offset, 1));
+        drawMonth();
+      }
+      previous.addEventListener("click", () => moveMonth(-1));
+      next.addEventListener("click", () => moveMonth(1));
+      container.replaceChildren(chart);
+      drawMonth();
+    }
+
+    function renderHomeActivity() {
+      const byDate = new Map();
+      for (const [key, project] of Object.entries(projects)) {
+        for (const date of new Set(project.logs.map(log => log.date))) {
+          if (!byDate.has(date)) byDate.set(date, []);
+          byDate.get(date).push([key, project.title]);
+        }
+      }
+      const container = get("home-activity-grid");
+      function showDay(date) {
+        const entries = byDate.get(date) || [];
+        get("home-activity-day").textContent = date
+          ? monthDay.format(Date.parse(date)) + " · 프로젝트 " + entries.length + "개"
+          : "이 달에 작업 기록이 없어요.";
+        get("home-activity-projects").replaceChildren(...entries.map(([key, title]) => {
+          const link = textElement("a", title, "source-link");
+          link.href = "#" + key;
+          return link;
+        }));
+        for (const button of container.querySelectorAll("button.activity-cell")) {
+          button.setAttribute("aria-pressed", String(button.dataset.date === date));
+        }
+      }
+      renderActivity(container, byDate, true, showDay, (_, entries) => {
+        showDay(entries.map(([date]) => date).sort().at(-1));
+      });
+    }
+
+    function renderLogs(logs, documents) {
+      const byDate = new Map();
+      const sorted = [...logs].sort((a, b) => b.date.localeCompare(a.date));
+      for (const log of sorted) {
+        if (!byDate.has(log.date)) byDate.set(log.date, []);
+        byDate.get(log.date).push(log);
+      }
+      renderActivity(get("project-activity-grid"), byDate, false, date => {
+        const heading = get("log-date-" + date);
+        heading.focus({ preventScroll: true });
+        heading.scrollIntoView({ block: "start" });
+      }, (month, selectedDays) => {
+        const count = selectedDays.reduce((total, [, entries]) => total + entries.length, 0);
+        get("log-count").textContent = (month.getUTCMonth() + 1) + "월 · " + count + "건";
+        const days = selectedDays.map(([date, entries]) => {
+          const day = document.createElement("section");
+          day.className = "log-day";
+          const heading = textElement("h3", monthDay.format(Date.parse(date)));
+          heading.id = "log-date-" + date;
+          heading.tabIndex = -1;
+          day.append(heading);
+          for (const entry of entries) {
+            const row = document.createElement("article");
+            row.className = "log-line";
+            const detail = document.createElement("div");
+            detail.append(textElement("p", entry.description));
+            appendSources(detail, entry.files, documents, "log:" + date + ":" + entry.title);
+            row.append(textElement("h4", entry.title), detail);
+            day.append(row);
+          }
+          return day;
+        });
+        if (!days.length) days.push(textElement("p", "이 달에 작업 기록이 없어요.", "quiet"));
+        get("project-log").replaceChildren(...days);
+      });
+    }
+
+    function renderProgress(project, documents) {
+      const groups = ["완료", "진행 중", "진행 예정"];
+      const sections = [];
+      if (project.idea) {
+        const note = document.createElement("section");
+        note.className = "plan-goal";
+        note.append(textElement("h3", project.plan ? "목표" : "계획 메모"));
+        const description = project.plan?.goal || project.summary;
+        if (description) note.append(textElement("p", description));
+        if (project.plan && project.summary) note.append(textElement("p", "시작 메모 · " + project.summary, "quiet"));
+        note.append(actionButton(project.plan ? "계획 편집" : "계획 잡기", openPlan));
+        sections.push(note);
+      }
+      if (!project.tasks.length) {
+        get("plan-progress").textContent = "계획 전";
+        get("tasks").replaceChildren(...sections);
+        return;
+      }
+      const complete = project.tasks.filter(([, state]) => state === "완료").length;
+      get("plan-progress").textContent = project.tasks.length + "단계 중 " + complete + "단계 완료";
+
+      for (const group of groups) {
+        const tasks = project.tasks.filter(([, state]) => state === (group === "진행 예정" ? "예정" : group));
+        if (!tasks.length) continue;
+        const completedGroup = group === "완료";
+        const section = document.createElement(completedGroup ? "details" : "section");
+        section.className = completedGroup ? "plan-group completed-stages" : "plan-group";
+        section.append(completedGroup
+          ? textElement("summary", "완료한 단계 · " + tasks.length + "개")
+          : textElement("h3", group));
+        const steps = document.createElement("ol");
+        steps.className = "plan-stages";
+        for (const [stageIndex, [title, state]] of tasks.entries()) {
+          const row = document.createElement("li");
+          const detail = project.stageDetails?.[title];
+          const current = state === "진행 중";
+          const expandable = current || (state === "완료" && detail);
+          const head = document.createElement(expandable ? "summary" : "div");
+          head.className = current ? "plan-line current" : "plan-line";
+          const label = textElement("span", title, "stage-label");
+          if (current) label.setAttribute("aria-current", "step");
+          head.append(label);
+
+          if (!expandable) {
+            row.append(head);
+            const condition = project.plan?.stages[stageIndex]?.condition;
+            if (condition) row.append(textElement("p", "완료 조건 · " + condition, "quiet stage-condition-note"));
+            steps.append(row);
+            continue;
+          }
+
+          if (detail?.completedOn) head.append(textElement("span", monthDay.format(new Date(detail.completedOn)), "quiet"));
+          const details = document.createElement("details");
+          const body = document.createElement("div");
+          body.className = "stage-body";
+          const summary = detail?.body || (current ? project.progress?.summary || project.summary : "");
+          if (summary) body.append(textElement("p", summary));
+          if (detail?.checks?.length) {
+            const checks = document.createElement("ul");
+            checks.className = "stage-checks";
+            checks.append(...stageChecks(detail.checks));
+            body.append(checks);
+          }
+          appendSources(body, detail?.files || (current ? project.progress?.files : []), documents, "stage:" + title);
+          if (detail?.recordPhase && project.record) body.append(...renderRecordSections(project.record, documents, detail.recordPhase));
+          if (current && project.progress?.strengths) {
+            const notes = document.createElement("section");
+            notes.className = "record-section";
+            notes.append(textElement("h4", "지금까지 잘 된 점"));
+            for (const note of project.progress.strengths) notes.append(textElement("p", note));
+            if (project.progress.next) notes.append(textElement("h4", "다음에 확인할 일"), textElement("p", project.progress.next));
+            body.append(notes);
+          }
+          details.append(head, body);
+          row.append(details);
+          steps.append(row);
+        }
+        section.append(steps);
+        sections.push(section);
+      }
+      get("tasks").replaceChildren(...sections);
+    }
+
+    function showPage() {
+      const key = location.hash.slice(1);
+      activeProject = Object.hasOwn(projects, key) ? projects[key] : undefined;
+      activeProjectKey = activeProject ? key : null;
+      for (const overlay of [dialog, reportDialog, tagDialog, ideaDialog, planDialog, promptDialog, presetLinkDialog, presetNameDialog, evaluationDialog]) {
+        if (overlay.open) overlay.close();
+      }
+      const atPresets = key === "presets";
+      get("home").hidden = Boolean(activeProject) || atPresets;
+      get("project").hidden = !activeProject;
+      get("presets-page").hidden = !atPresets;
+      if (atPresets) {
+        renderPresetLibrary();
+        get("preset-page-title").focus();
+        return;
+      }
+      if (!activeProject) return;
+
+      get("project-title").textContent = activeProject.title;
+      get("project-meta").textContent = [categories[activeProject.category], activeProject.role, projectDate(activeProject)].filter(Boolean).join(" · ");
+      get("open-report").hidden = Boolean(activeProject.idea);
+      get("open-evaluation").hidden = !activeJudges().length && !evaluations[activeProjectKey]?.length;
+      const documents = { draft: activeProject.document, ...activeProject.workspace?.materials };
+      renderLogs(activeProject.logs, documents);
+      renderProgress(activeProject, documents);
+      get("log-section").open = false;
+      get("progress-section").open = true;
+      get("project-title").focus();
+    }
+
+    function selectedText() {
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed) return "";
+      if (!line.contains(selection.anchorNode) || !line.contains(selection.focusNode)) return "";
+      return selection.toString().trim();
+    }
+
+    async function copyLocation(mode) {
+      const info = activeDocument;
+      const value = mode === "file"
+        ? info.path
+        : [info.path, info.section, "“" + (selectedText() || info.line) + "”"].join("\n");
+      manualCopy.hidden = true;
+      try {
+        await navigator.clipboard.writeText(value);
+        status.textContent = mode === "file" ? "파일 경로를 복사했어요." : "경로, 섹션, 선택한 내용을 복사했어요.";
+      } catch {
+        status.textContent = "아래 위치를 선택했어요. 복사 메뉴나 Ctrl+C로 복사할 수 있어요.";
+        manualCopy.value = value;
+        manualCopy.hidden = false;
+        manualCopy.focus();
+        manualCopy.select();
+      }
+    }
+
+    get("open-report").addEventListener("click", () => {
+      const report = activeProject.record;
+      const body = get("report-body");
+      const dates = isComplete(activeProject) ? projectDate(activeProject) : "진행 중";
+      body.replaceChildren(
+        textElement("p", activeProject.role + " · " + dates, "quiet"),
+        textElement("h3", report?.title || activeProject.title),
+        textElement("p", report?.lead || activeProject.summary, "portfolio-lead")
+      );
+      if (report?.image) {
+        const figure = document.createElement("figure");
+        const image = document.createElement("img");
+        image.src = report.image;
+        image.alt = report.caption;
+        figure.append(image, textElement("figcaption", report.caption, "quiet"));
+        body.append(figure);
+      }
+      if (report) body.append(...renderRecordSections(report));
+      reportDialog.scrollTop = 0;
+      reportDialog.showModal();
+    });
+    get("close-report").addEventListener("click", () => reportDialog.close());
+    get("close-plan").addEventListener("click", () => planDialog.close());
+    get("add-plan-stage").addEventListener("click", () => {
+      addPlanStage();
+      get("plan-inputs").lastElementChild.querySelector("input").focus();
+    });
+    get("plan-form").addEventListener("submit", event => {
+      event.preventDefault();
+      const goal = get("plan-goal");
+      const fields = [goal, ...get("plan-inputs").querySelectorAll("input")];
+      for (const field of fields) {
+        field.value = field.value.trim();
+        if (!field.reportValidity()) return;
+      }
+      const stages = [...get("plan-inputs").children].map(row => ({
+        title: row.querySelector(".stage-title").value,
+        condition: row.querySelector(".stage-condition").value
+      }));
+      const existing = ideaState.projects.find(note => note.id === activeProjectKey);
+      const updated = { ...existing, plan: { goal: goal.value, targetDate: get("plan-target").value, stages } };
+      registerPromotedIdea(updated);
+      const promotedProjects = ideaState.projects.map(note => note.id === updated.id ? updated : note);
+      commitIdeas({ ...ideaState, projects: promotedProjects }, "프로젝트 계획을 저장했어요.");
+      showPage();
+    });
+    get("open-preset-library").addEventListener("click", event => {
+      event.preventDefault();
+      navigatePresetLibrary();
+    });
+    get("open-prompts").addEventListener("click", openProjectPreset);
+    get("close-prompts").addEventListener("click", () => promptDialog.close());
+    get("add-preset").addEventListener("click", openPresetRequest);
+    get("close-preset-name").addEventListener("click", () => presetNameDialog.close());
+    get("preset-name-form").addEventListener("submit", event => {
+      event.preventDefault();
+      const purpose = get("preset-request").value.trim();
+      if (!purpose) return;
+      const prepared = preparePreset(purpose);
+      selectedPresetId = "preset-" + crypto.randomUUID();
+      presets[selectedPresetId] = prepared;
+      presetNameDialog.close();
+      renderPresetLibrary();
+      get("preset-status").textContent = savePresetSettings()
+        ? "구성한 설정 예시를 프리셋에 저장했어요." : "구성한 설정 예시를 이 화면에서 확인할 수 있어요.";
+    });
+    get("close-preset-link").addEventListener("click", () => presetLinkDialog.close());
+    get("manage-presets-from-project").addEventListener("click", () => navigatePresetLibrary(get("project-preset").value));
+    get("project-preset").addEventListener("change", () => {
+      get("preset-link-status").textContent = "";
+      showLinkedPrompt();
+    });
+    get("linked-preset-role").addEventListener("change", showLinkedPrompt);
+    get("linked-persona").addEventListener("change", showLinkedPrompt);
+    get("preset-link-form").addEventListener("submit", event => {
+      event.preventDefault();
+      const id = get("project-preset").value;
+      presetLinks[activeProjectKey] = id || null;
+      const saved = savePresetSettings();
+      get("open-evaluation").hidden = !activeJudges().length && !evaluations[activeProjectKey]?.length;
+      showLinkedPrompt();
+      get("preset-link-status").textContent = saved
+        ? (id ? "이 프로젝트에 프리셋을 연결했어요." : "프리셋 연결을 해제했어요.")
+        : "브라우저 저장을 사용할 수 없어 이 창에서만 유지돼요.";
+    });
+    get("copy-prompt").addEventListener("click", async () => {
+      const selector = get("linked-preset-role");
+      const preset = presets[projectPresetId(activeProjectKey, activeProject)];
+      const persona = preset?.roles[selector.value].find(item => item.id === get("linked-persona").value);
+      if (!persona) return;
+      const context = ["프로젝트 · " + activeProject.title, "프리셋 · " + preset.name, "역할 · " + selector.selectedOptions[0].textContent, "페르소나 · " + persona.name];
+      if (activeProject.plan?.goal) context.push("목표 · " + activeProject.plan.goal);
+      if (persona.model) context.push("모델 · " + persona.model);
+      const value = context.join("\n") + "\n\n" + persona.text;
+      const fallback = get("prompt-manual-copy");
+      fallback.hidden = true;
+      try {
+        await navigator.clipboard.writeText(value);
+        get("preset-link-status").textContent = "프롬프트를 복사했어요.";
+      } catch {
+        get("preset-link-status").textContent = "아래 내용을 복사해 주세요.";
+        fallback.value = value;
+        fallback.hidden = false;
+        fallback.focus();
+        fallback.select();
+      }
+    });
+    get("open-evaluation").addEventListener("click", openEvaluation);
+    get("close-evaluation").addEventListener("click", () => evaluationDialog.close());
+    get("evaluation-run").addEventListener("change", event => {
+      selectedEvaluationId = event.target.value;
+      get("evaluation-status").textContent = "";
+      renderEvaluation();
+      const run = selectedEvaluation();
+      if (run) launchDemoRun(activeProjectKey, run);
+    });
+    get("new-evaluation").addEventListener("click", () => {
+      selectedEvaluationId = "";
+      get("evaluation-start").reset();
+      get("evaluation-status").textContent = "";
+      renderEvaluation();
+      get("evaluation-submission").focus();
+    });
+    get("load-evaluation-example").addEventListener("click", () => {
+      get("submission-version").value = "v5 예시";
+      get("evaluation-submission").value = demoEvaluation.submission;
+      get("evaluation-criteria").value = demoEvaluation.criteria;
+    });
+    get("evaluation-start").addEventListener("submit", event => {
+      event.preventDefault();
+      const judges = activeJudges();
+      const submission = get("evaluation-submission").value;
+      const criteria = get("evaluation-criteria").value;
+      if (!judges.length || !submission.trim() || !criteria.trim()) return;
+      const preset = presets[projectPresetId(activeProjectKey, activeProject)];
+      const run = {
+        id: crypto.randomUUID(), version: get("submission-version").value.trim(), project: activeProject.title,
+        presetName: preset.name, submission, criteria, mode: "demo", judges: structuredClone(judges), results: {}
+      };
+      evaluationRuns().push(run);
+      selectedEvaluationId = run.id;
+      get("evaluation-start").reset();
+      get("evaluation-status").textContent = "";
+      saveSettings(evaluationStorageKey, evaluations);
+      renderEvaluation();
+      launchDemoRun(activeProjectKey, run);
+    });
+    get("add-idea").addEventListener("click", () => openIdeaEditor());
+    get("close-idea-dialog").addEventListener("click", () => ideaDialog.close());
+    get("idea-form").addEventListener("submit", event => {
+      event.preventDefault();
+      const title = get("idea-name").value.trim();
+      if (!title) {
+        get("idea-name").focus();
+        return;
+      }
+      const text = get("idea-text").value.trim();
+      const note = { ...editingIdea, id: editingIdea?.id || "note-" + crypto.randomUUID(), title, text };
+      const notes = editingIdea ? ideaState.notes.map(item => item.id === note.id ? note : item) : [...ideaState.notes, note];
+      commitIdeas({ ...ideaState, notes }, "메모를 저장했어요.");
+      ideaDialog.close();
+    });
+    get("promote-idea-form").addEventListener("submit", event => {
+      event.preventDefault();
+      const category = get("idea-category").value;
+      if (!promotingIdea || !Object.hasOwn(categories, category)) return;
+      const promoted = { ...promotingIdea, category, createdOn: previewDate };
+      registerPromotedIdea(promoted);
+      activeTag = null;
+      const notes = ideaState.notes.filter(item => item.id !== promoted.id);
+      commitIdeas({ notes, projects: [...ideaState.projects, promoted] }, "프로젝트로 전환했어요.");
+      ideaDialog.close();
+      location.hash = promoted.id;
+    });
+    get("open-tags").addEventListener("click", () => {
+      tagInput.value = "";
+      tagStatus.textContent = "";
+      showTags();
+      tagDialog.showModal();
+    });
+    get("close-tags").addEventListener("click", () => tagDialog.close());
+    get("close-document").addEventListener("click", () => dialog.close());
+    get("open-link-form").addEventListener("click", () => {
+      const select = get("link-choice");
+      select.replaceChildren(...Object.entries(activeReference.documents).map(([key, document]) => {
+        const option = textElement("option", document.name);
+        option.value = key;
+        return option;
+      }));
+      select.value = referenceState(activeReference)?.document || activeReference.key;
+      get("link-form").hidden = false;
+      select.focus();
+    });
+    get("link-form").addEventListener("submit", event => {
+      event.preventDefault();
+      const key = get("link-choice").value;
+      const current = referenceState(activeReference)?.document || activeReference.key;
+      if (key !== current) updateReference(key, true);
+      else get("link-form").hidden = true;
+    });
+    get("confirm-link").addEventListener("click", () => updateReference(referenceState(activeReference).document, false));
+    get("copy-position").addEventListener("mousedown", event => {
+      if (selectedText()) event.preventDefault();
+    });
+    get("copy-position").addEventListener("click", () => copyLocation("position"));
+    get("copy-path").addEventListener("click", () => copyLocation("file"));
+    get("clear-tag-filter").addEventListener("click", () => selectTag(null));
+    get("tag-form").addEventListener("submit", event => {
+      event.preventDefault();
+      const tag = tagInput.value.trim();
+      if (!tag) return;
+      if (activeProject.tags.includes(tag)) {
+        tagStatus.textContent = "이미 붙어 있는 태그예요.";
+        return;
+      }
+      updateTags([...activeProject.tags, tag]);
+      tagInput.value = "";
+      tagInput.focus();
+    });
+    window.addEventListener("hashchange", showPage);
+    get("preview-date").dateTime = previewDate;
+    get("preview-date").textContent = monthDay.format(Date.parse(previewDate));
+    get("idea-category").replaceChildren(...Object.entries(categories).map(([key, label]) => {
+      const option = textElement("option", label);
+      option.value = key;
+      return option;
+    }));
+    renderHomeActivity();
+    renderHome();
+    renderIdeas();
+    showPage();
+  </script>
+</body>
+</html>
