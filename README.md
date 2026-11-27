@@ -1,5 +1,12 @@
 # 프로젝트 작업 기록 에이전트
 
+## 데모 페이지
+
+- [**V5 데모 페이지 열기**](https://jwoo-park.github.io/agentic-ai-challenge/docs/v5/previews/project-home-preview.html) (GitHub Pages 배포 활성화 후 이용 가능)
+- [HTML 시안 원본](docs/v5/previews/project-home-preview.html) (다운로드하여 브라우저에서 열기)
+
+데모에서는 프로젝트 홈, 작업 기록, 공개 소개, AI 프리셋과 독립 평가 흐름을 예시 데이터로 체험할 수 있습니다. 실제 AI 모델 연동은 기획 범위입니다.
+
 **현재 버전 · v5 공모전 기획안**
 
 프로젝트 계획을 잡고, 채팅 한 줄로 실제 작업과 산출물을 기록한다. 현재 계획의 어디까지 왔는지 확인하고, 프로젝트를 마치면 기록과 자료를 바탕으로 공개용 소개 페이지를 만든다.
